@@ -1,0 +1,139 @@
+require('dotenv').config({ quiet: true });
+const Groq = require('groq-sdk');
+const { GoogleGenAI } = require('@google/genai');
+
+const groqApiKey = process.env.GROQ_API_KEY;
+const geminiApiKey = process.env.GEMINI_API_KEY;
+
+const groq = groqApiKey ? new Groq({ apiKey: groqApiKey }) : null;
+const ai = geminiApiKey ? new GoogleGenAI({ apiKey: geminiApiKey }) : null;
+
+/**
+ * Check text using Prompt Guard (Groq) or return safe default
+ */
+async function checkPromptGuard(text) {
+  if (!groq) return { isTroll: false, score: 0 };
+
+  try {
+    const shieldCheck = await groq.chat.completions.create({
+      model: 'meta-llama/llama-prompt-guard-2-86m',
+      messages: [{ role: 'user', content: text }],
+      temperature: 0,
+      max_tokens: 10
+    });
+
+    const scoreText = shieldCheck.choices[0]?.message?.content;
+    const probability = parseFloat(scoreText);
+    const isTroll = !isNaN(probability) && probability > 0.9;
+    return { isTroll, score: probability || 0 };
+  } catch (err) {
+    console.error('[llmRouter] Prompt Guard check failed:', err.message);
+    return { isTroll: false, score: 0 };
+  }
+}
+
+async function callGemini(contents, config = {}) {
+  try {
+    const response = await ai.models.generateContent({
+      model: 'gemini-3.5-flash-lite',
+      contents,
+      config
+    });
+    return response;
+  } catch (err) {
+    console.warn(`[llmRouter] Gemini 3.5 failed (${err.message}). Falling back to Gemini 3.1 Flash Lite...`);
+    const fallbackResponse = await ai.models.generateContent({
+      model: 'gemini-3.1-flash-lite',
+      contents,
+      config
+    });
+    return fallbackResponse;
+  }
+}
+
+/**
+ * Fast JSON extraction (subject, deadline dates)
+ * Primary: Groq llama-3.1-8b-instant
+ * Fallback: Gemini Flash Lite
+ */
+async function fastExtractJson(prompt) {
+  if (groq) {
+    try {
+      const completion = await groq.chat.completions.create({
+        model: 'llama-3.1-8b-instant',
+        messages: [{ role: 'user', content: prompt }],
+        temperature: 0,
+        response_format: { type: "json_object" }
+      });
+      return JSON.parse(completion.choices[0]?.message?.content);
+    } catch (err) {
+      console.warn('[llmRouter] Groq 8B JSON extraction failed, trying Gemini fallback...', err.message);
+    }
+  }
+
+  if (ai) {
+    try {
+      const response = await callGemini(prompt + '\nReturn ONLY a valid JSON object.', { responseMimeType: 'application/json' });
+      return JSON.parse(response.text);
+    } catch (err) {
+      console.error('[llmRouter] Gemini JSON extraction failed:', err.message);
+    }
+  }
+
+  throw new Error('No available LLM provider succeeded for JSON extraction.');
+}
+
+/**
+ * RAG Question Answering
+ * Priority Logic:
+ * - If contextLength > 4000 OR Groq unavailable -> Try Gemini Flash Lite first (huge context window)
+ * - Otherwise -> Try Groq llama-3.3-70b-versatile first
+ * - Automatic Failover on error/rate limit
+ */
+async function generateAnswer(prompt, contextLength = 0) {
+  const preferGemini = contextLength > 4000 || !groq;
+
+  if (preferGemini && ai) {
+    console.log(`[llmRouter] Routing to Gemini (Context Length: ${contextLength})`);
+    try {
+      const response = await callGemini(prompt);
+      return response.text;
+    } catch (err) {
+      console.warn('[llmRouter] Gemini failed entirely, attempting failover to Groq 70B...', err.message);
+      if (groq) return await callGroq70B(prompt);
+      throw err;
+    }
+  }
+
+  if (groq) {
+    console.log(`[llmRouter] Routing to Groq 70B (Context Length: ${contextLength})`);
+    try {
+      return await callGroq70B(prompt);
+    } catch (err) {
+      console.warn('[llmRouter] Groq 70B failed/rate-limited, attempting failover to Gemini...', err.message);
+      if (ai) {
+        const response = await callGemini(prompt);
+        return response.text;
+      }
+      throw err;
+    }
+  }
+
+  throw new Error('No LLM provider available.');
+}
+
+async function callGroq70B(prompt) {
+  const completion = await groq.chat.completions.create({
+    model: 'llama-3.3-70b-versatile',
+    messages: [{ role: 'user', content: prompt }],
+    temperature: 0.1,
+    max_tokens: 400
+  });
+  return completion.choices[0]?.message?.content;
+}
+
+module.exports = {
+  checkPromptGuard,
+  fastExtractJson,
+  generateAnswer
+};
