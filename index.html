@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Class Copilot — AI Agent for Your WhatsApp Study Group</title>
+  <meta name="description" content="The first AI agent built for your entire class. Plug into any WhatsApp group in under 60 seconds. Notes, deadlines, and answers — all automated." />
+  <meta name="keywords" content="Class Copilot, WhatsApp AI, study group bot, student AI agent, notes automation, deadline tracker" />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Three.js for 3D -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- 3D Canvas Background -->
+  <canvas id="bg-canvas"></canvas>
+
+  <!-- Floating WhatsApp Bubbles (decorative) -->
+  <div class="floating-bubbles" aria-hidden="true">
+    <div class="bubble bubble-1">📚</div>
+    <div class="bubble bubble-2">🤖</div>
+    <div class="bubble bubble-3">⏰</div>
+    <div class="bubble bubble-4">💡</div>
+    <div class="bubble bubble-5">📝</div>
+    <div class="bubble bubble-6">🎓</div>
+  </div>
+
+  <!-- ============ NAVBAR ============ -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-container">
+      <a href="#" class="nav-logo">
+        <div class="logo-icon">
+          <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+            <rect width="32" height="32" rx="8" fill="url(#logoGrad)" />
+            <path d="M16 6C10.48 6 6 10.18 6 15.31C6 17.97 7.23 20.37 9.21 22.03L8.1 25.5L11.82 24.3C13.11 24.87 14.52 25.18 16 25.18C21.52 25.18 26 21 26 15.87C26 10.74 21.52 6 16 6Z" fill="white" opacity="0.9"/>
+            <circle cx="12" cy="15" r="1.5" fill="url(#logoGrad)"/>
+            <circle cx="16" cy="15" r="1.5" fill="url(#logoGrad)"/>
+            <circle cx="20" cy="15" r="1.5" fill="url(#logoGrad)"/>
+            <defs>
+              <linearGradient id="logoGrad" x1="0" y1="0" x2="32" y2="32">
+                <stop stop-color="#25D366" />
+                <stop offset="1" stop-color="#128C7E" />
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <span class="logo-text">Class<span class="logo-accent">Copilot</span></span>
+      </a>
+      <div class="nav-links" id="nav-links">
+        <a href="#features" class="nav-link">Features</a>
+        <a href="#how-it-works" class="nav-link">How It Works</a>
+        <a href="#architecture" class="nav-link">Architecture</a>
+        <a href="#compare" class="nav-link">Compare</a>
+        <a href="#roadmap" class="nav-link">Roadmap</a>
+      </div>
+      <a href="#get-started" class="nav-cta">
+        <span>Get Started</span>
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+      <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ============ HERO ============ -->
+  <section class="hero" id="hero">
+    <div class="hero-content">
+      <div class="hero-badge animate-on-scroll">
+        <div class="badge-dot"></div>
+        <span>Built for Students, Powered by AI</span>
+      </div>
+      <h1 class="hero-title animate-on-scroll">
+        Your Entire Class,<br />
+        <span class="gradient-text">One AI Brain.</span>
+      </h1>
+      <p class="hero-subtitle animate-on-scroll">
+        The first AI agent that lives inside your WhatsApp group — capturing notes, 
+        tracking deadlines, and answering questions from your class material. 
+        Zero new apps. Zero friction. Just plug in and study smarter.
+      </p>
+      <div class="hero-cta-group animate-on-scroll">
+        <a href="#get-started" class="btn btn-primary">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 2C5.58 2 2 5.36 2 9.5C2 11.57 3 13.43 4.6 14.68L3.75 17.5L6.73 16.5C7.72 16.93 8.83 17.18 10 17.18C14.42 17.18 18 13.82 18 9.68C18 5.54 14.42 2 10 2Z" fill="#25D366"/><circle cx="7.5" cy="9.5" r="1" fill="white"/><circle cx="10" cy="9.5" r="1" fill="white"/><circle cx="12.5" cy="9.5" r="1" fill="white"/></svg>
+          <span>Connect WhatsApp</span>
+        </a>
+        <a href="#how-it-works" class="btn btn-ghost">
+          <span>See Demo</span>
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><polygon points="5,3 13,8 5,13" fill="currentColor"/></svg>
+        </a>
+      </div>
+      <div class="hero-stats animate-on-scroll">
+        <div class="stat">
+          <span class="stat-number" data-target="60">0</span><span class="stat-unit">sec</span>
+          <span class="stat-label">Setup Time</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat">
+          <span class="stat-number" data-target="99.9">0</span><span class="stat-unit">%</span>
+          <span class="stat-label">Uptime</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat">
+          <span class="stat-number" data-target="0">0</span><span class="stat-unit">$</span>
+          <span class="stat-label">Cost</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Animated WhatsApp Phone Mockup -->
+    <div class="hero-visual animate-on-scroll">
+      <div class="phone-mockup">
+        <div class="phone-notch"></div>
+        <div class="phone-screen">
+          <div class="wa-header">
+            <div class="wa-header-left">
+              <div class="wa-avatar">CC</div>
+              <div>
+                <div class="wa-group-name">CS101 Study Group</div>
+                <div class="wa-status">Class Copilot is typing...</div>
+              </div>
+            </div>
+          </div>
+          <div class="wa-chat" id="wa-chat">
+            <div class="wa-msg wa-msg-other wa-msg-anim" style="--delay: 0.5s">
+              <div class="wa-msg-name">Riya</div>
+              <div class="wa-msg-text">Does anyone have notes on Binary Search Trees? 😫</div>
+              <div class="wa-msg-time">9:41 PM</div>
+            </div>
+            <div class="wa-msg wa-msg-bot wa-msg-anim" style="--delay: 1.8s">
+              <div class="wa-msg-name">🤖 Class Copilot</div>
+              <div class="wa-msg-text">Found 3 relevant notes on BST! Here's a summary:<br/><br/>📌 <strong>BST Properties:</strong> Left child < parent < right child<br/>📌 <strong>Time Complexity:</strong> O(log n) avg, O(n) worst<br/>📌 <strong>Key Operations:</strong> Insert, Delete, Search<br/><br/><em>Source: Lecture 7 Notes (uploaded by Arjun)</em></div>
+              <div class="wa-msg-time">9:41 PM ✓✓</div>
+            </div>
+            <div class="wa-msg wa-msg-other wa-msg-anim" style="--delay: 3.2s">
+              <div class="wa-msg-name">Arjun</div>
+              <div class="wa-msg-text">📄 DSA_Week7_Notes.pdf</div>
+              <div class="wa-msg-time">9:42 PM</div>
+            </div>
+            <div class="wa-msg wa-msg-bot wa-msg-anim" style="--delay: 4.2s">
+              <div class="wa-msg-name">🤖 Class Copilot</div>
+              <div class="wa-msg-text">✅ Note captured! 14 pages indexed and ready for search.</div>
+              <div class="wa-msg-time">9:42 PM ✓✓</div>
+            </div>
+            <div class="wa-msg wa-msg-other wa-msg-anim" style="--delay: 5.5s">
+              <div class="wa-msg-name">Sneha</div>
+              <div class="wa-msg-text">Reminder: DSA assignment due this Friday!</div>
+              <div class="wa-msg-time">9:43 PM</div>
+            </div>
+            <div class="wa-msg wa-msg-bot wa-msg-anim" style="--delay: 6.5s">
+              <div class="wa-msg-name">🤖 Class Copilot</div>
+              <div class="wa-msg-text">⏰ Deadline set! I'll remind everyone on Thursday at 6 PM.</div>
+              <div class="wa-msg-time">9:43 PM ✓✓</div>
+            </div>
+          </div>
+          <div class="wa-input-bar">
+            <div class="wa-input-placeholder">Type a message</div>
+            <div class="wa-send-btn">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M2 10L18 2L14 10L18 18L2 10Z" fill="#25D366"/></svg>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Glow rings around phone -->
+      <div class="phone-glow phone-glow-1"></div>
+      <div class="phone-glow phone-glow-2"></div>
+      <div class="phone-glow phone-glow-3"></div>
+    </div>
+  </section>
+
+  <!-- ============ TRUSTED BY / TECH LOGOS ============ -->
+  <section class="tech-strip">
+    <div class="container">
+      <p class="tech-strip-label">Powered By</p>
+      <div class="tech-logos">
+        <div class="tech-logo">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none"><path d="M14 2C7.37 2 2 7.37 2 14s5.37 12 12 12 12-5.37 12-12S20.63 2 14 2z" fill="#25D366"/><path d="M14 5C9.03 5 5 8.8 5 13.44c0 2.49 1.1 4.73 2.87 6.27L7 23l3.47-1.1c1.06.46 2.23.73 3.46.73C18.9 22.63 23 18.83 23 14.19 23 9.55 18.9 5 14 5z" fill="white"/></svg>
+          <span>WhatsApp</span>
+        </div>
+        <div class="tech-logo">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none"><rect width="28" height="28" rx="6" fill="#F97316"/><text x="14" y="19" font-size="14" font-weight="700" fill="white" text-anchor="middle" font-family="Inter">G</text></svg>
+          <span>Groq</span>
+        </div>
+        <div class="tech-logo">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none"><rect width="28" height="28" rx="6" fill="#4285F4"/><text x="14" y="19" font-size="14" font-weight="700" fill="white" text-anchor="middle" font-family="Inter">G</text></svg>
+          <span>Gemini</span>
+        </div>
+        <div class="tech-logo">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none"><rect width="28" height="28" rx="6" fill="#3ECF8E"/><text x="14" y="19" font-size="12" font-weight="700" fill="white" text-anchor="middle" font-family="Inter">S</text></svg>
+          <span>Supabase</span>
+        </div>
+        <div class="tech-logo">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none"><rect width="28" height="28" rx="6" fill="#339933"/><text x="14" y="19" font-size="10" font-weight="700" fill="white" text-anchor="middle" font-family="Inter">N</text></svg>
+          <span>Node.js</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FEATURES ============ -->
+  <section class="features" id="features">
+    <div class="container">
+      <div class="section-header animate-on-scroll">
+        <span class="section-tag">Features</span>
+        <h2 class="section-title">Everything Your Study Group <span class="gradient-text">Deserves</span></h2>
+        <p class="section-desc">Three superpowers. One WhatsApp group. Zero configuration.</p>
+      </div>
+
+      <div class="features-grid">
+        <!-- Feature 1: Smart Notes -->
+        <div class="feature-card feature-card-large animate-on-scroll" id="feature-notes">
+          <div class="feature-card-glow"></div>
+          <div class="feature-icon-wrap">
+            <div class="feature-icon feature-icon-notes">
+              <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><rect x="6" y="4" width="20" height="24" rx="3" stroke="currentColor" stroke-width="2"/><path d="M11 10h10M11 14h10M11 18h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="22" cy="22" r="6" fill="#25D366"/><path d="M20 22l1.5 1.5L24 20" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+          </div>
+          <h3 class="feature-title">Smart Note Capture</h3>
+          <p class="feature-desc">
+            Drop a PDF into the group chat. Class Copilot extracts every word, 
+            converts it into searchable vectors, and makes it instantly queryable 
+            by the entire class.
+          </p>
+          <div class="feature-tags">
+            <span class="tag">PDF Extraction</span>
+            <span class="tag">pgvector</span>
+            <span class="tag">Auto-Index</span>
+          </div>
+        </div>
+
+        <!-- Feature 2: Deadline Tracker -->
+        <div class="feature-card animate-on-scroll" id="feature-deadlines">
+          <div class="feature-card-glow"></div>
+          <div class="feature-icon-wrap">
+            <div class="feature-icon feature-icon-deadline">
+              <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="11" stroke="currentColor" stroke-width="2"/><path d="M16 10v6l4 3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="24" cy="8" r="5" fill="#F97316"/><text x="24" y="10.5" font-size="7" font-weight="700" fill="white" text-anchor="middle" font-family="Inter">!</text></svg>
+            </div>
+          </div>
+          <h3 class="feature-title">Auto Deadlines</h3>
+          <p class="feature-desc">
+            Mention a deadline and the bot parses it, schedules a reminder, 
+            and pings the group before it's too late.
+          </p>
+          <div class="feature-tags">
+            <span class="tag">Date Parsing</span>
+            <span class="tag">Scheduled Alerts</span>
+          </div>
+        </div>
+
+        <!-- Feature 3: AI Q&A -->
+        <div class="feature-card animate-on-scroll" id="feature-qa">
+          <div class="feature-card-glow"></div>
+          <div class="feature-icon-wrap">
+            <div class="feature-icon feature-icon-qa">
+              <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><path d="M6 8a4 4 0 014-4h12a4 4 0 014 4v10a4 4 0 01-4 4H14l-5 4v-4H10a4 4 0 01-4-4V8z" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="13" r="1.5" fill="currentColor"/><circle cx="16" cy="13" r="1.5" fill="currentColor"/><circle cx="20" cy="13" r="1.5" fill="currentColor"/><circle cx="24" cy="6" r="5" fill="#8B5CF6"/><text x="24" y="8.5" font-size="7" font-weight="700" fill="white" text-anchor="middle" font-family="Inter">?</text></svg>
+            </div>
+          </div>
+          <h3 class="feature-title">RAG-Powered Q&A</h3>
+          <p class="feature-desc">
+            Ask any question. The bot searches your class notes via vector similarity 
+            and generates accurate answers grounded in your actual material.
+          </p>
+          <div class="feature-tags">
+            <span class="tag">Vector Search</span>
+            <span class="tag">Llama 70B</span>
+          </div>
+        </div>
+
+        <!-- Feature 4: Troll Shield -->
+        <div class="feature-card animate-on-scroll" id="feature-shield">
+          <div class="feature-card-glow"></div>
+          <div class="feature-icon-wrap">
+            <div class="feature-icon feature-icon-shield">
+              <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><path d="M16 4L6 9v7c0 6.63 4.27 12.84 10 14.36C21.73 28.84 26 22.63 26 16V9L16 4z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M12 16l3 3 5-6" stroke="#25D366" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+          </div>
+          <h3 class="feature-title">Troll Shield</h3>
+          <p class="feature-desc">
+            A dedicated 86M guardrail model intercepts every query before it hits 
+            the expensive LLM — blocking jailbreaks and prompt injection attacks.
+          </p>
+          <div class="feature-tags">
+            <span class="tag">Prompt Guard</span>
+            <span class="tag">Anti-Jailbreak</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ HOW IT WORKS ============ -->
+  <section class="how-it-works" id="how-it-works">
+    <div class="container">
+      <div class="section-header animate-on-scroll">
+        <span class="section-tag">How It Works</span>
+        <h2 class="section-title">From Message to <span class="gradient-text">Magic</span> in Milliseconds</h2>
+        <p class="section-desc">Every message flows through an intelligent pipeline that classifies, processes, and responds — all within your WhatsApp group.</p>
+      </div>
+
+      <div class="pipeline">
+        <div class="pipeline-line"></div>
+
+        <div class="pipeline-step animate-on-scroll" data-step="1">
+          <div class="step-number">01</div>
+          <div class="step-card">
+            <div class="step-icon">📨</div>
+            <h3>Message Captured</h3>
+            <p>The Baileys bridge intercepts every message in real-time — text, PDFs, voice notes, images.</p>
+          </div>
+        </div>
+
+        <div class="pipeline-step animate-on-scroll" data-step="2">
+          <div class="step-number">02</div>
+          <div class="step-card">
+            <div class="step-icon">🧠</div>
+            <h3>AI Classification</h3>
+            <p>A hybrid Regex + Llama 8B classifier instantly sorts messages into NOTE, DEADLINE, QUESTION, or NOISE.</p>
+          </div>
+        </div>
+
+        <div class="pipeline-step animate-on-scroll" data-step="3">
+          <div class="step-number">03</div>
+          <div class="step-card">
+            <div class="step-icon">🛡️</div>
+            <h3>Security Check</h3>
+            <p>Troll Shield's 86M parameter guardrail verifies the query is legitimate — blocking jailbreaks in real-time.</p>
+          </div>
+        </div>
+
+        <div class="pipeline-step animate-on-scroll" data-step="4">
+          <div class="step-number">04</div>
+          <div class="step-card">
+            <div class="step-icon">🔍</div>
+            <h3>Vector Search</h3>
+            <p>Supabase pgvector finds the most relevant notes using semantic similarity — not keyword matching.</p>
+          </div>
+        </div>
+
+        <div class="pipeline-step animate-on-scroll" data-step="5">
+          <div class="step-number">05</div>
+          <div class="step-card">
+            <div class="step-icon">⚡</div>
+            <h3>Smart Response</h3>
+            <p>Llama 70B synthesizes a grounded answer and replies directly in the group chat within seconds.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ ARCHITECTURE ============ -->
+  <section class="architecture" id="architecture">
+    <div class="container">
+      <div class="section-header animate-on-scroll">
+        <span class="section-tag">Architecture</span>
+        <h2 class="section-title">Built for <span class="gradient-text">Reliability</span></h2>
+        <p class="section-desc">Triple-redundant LLM routing ensures 99.9% uptime. If Groq is down, Gemini takes over — seamlessly.</p>
+      </div>
+
+      <div class="arch-diagram animate-on-scroll">
+        <div class="arch-layer arch-layer-wa">
+          <div class="arch-label">WhatsApp Layer</div>
+          <div class="arch-nodes">
+            <div class="arch-node arch-node-wa">
+              <div class="arch-node-icon">💬</div>
+              <span>WhatsApp Group</span>
+            </div>
+            <div class="arch-connector arch-connector-horizontal">→</div>
+            <div class="arch-node arch-node-bridge">
+              <div class="arch-node-icon">🔌</div>
+              <span>Baileys Bridge</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="arch-connector-vertical">
+          <div class="arch-arrow-down"></div>
+        </div>
+
+        <div class="arch-layer arch-layer-brain">
+          <div class="arch-label">Intelligence Layer</div>
+          <div class="arch-nodes">
+            <div class="arch-node arch-node-classifier">
+              <div class="arch-node-icon">🧠</div>
+              <span>AI Classifier</span>
+            </div>
+          </div>
+          <div class="arch-branch">
+            <div class="arch-node arch-node-sm">
+              <div class="arch-node-icon">📝</div>
+              <span>Notes</span>
+            </div>
+            <div class="arch-node arch-node-sm">
+              <div class="arch-node-icon">⏰</div>
+              <span>Deadlines</span>
+            </div>
+            <div class="arch-node arch-node-sm">
+              <div class="arch-node-icon">❓</div>
+              <span>Questions</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="arch-connector-vertical">
+          <div class="arch-arrow-down"></div>
+        </div>
+
+        <div class="arch-layer arch-layer-ai">
+          <div class="arch-label">AI & Storage Layer</div>
+          <div class="arch-nodes arch-nodes-3">
+            <div class="arch-node arch-node-groq">
+              <div class="arch-node-icon">🚀</div>
+              <span>Groq 70B</span>
+              <small>Primary</small>
+            </div>
+            <div class="arch-node arch-node-gemini">
+              <div class="arch-node-icon">✨</div>
+              <span>Gemini</span>
+              <small>Fallback</small>
+            </div>
+            <div class="arch-node arch-node-supa">
+              <div class="arch-node-icon">🗄️</div>
+              <span>Supabase</span>
+              <small>pgvector</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ COMPARISON ============ -->
+  <section class="compare" id="compare">
+    <div class="container">
+      <div class="section-header animate-on-scroll">
+        <span class="section-tag">Why Us</span>
+        <h2 class="section-title">Why <span class="gradient-text">Class Copilot</span>?</h2>
+        <p class="section-desc">See how we stack up against the alternatives.</p>
+      </div>
+
+      <div class="compare-table-wrap animate-on-scroll">
+        <table class="compare-table">
+          <thead>
+            <tr>
+              <th></th>
+              <th class="compare-highlight">
+                <div class="compare-badge">⭐ Recommended</div>
+                Class Copilot
+              </th>
+              <th>NotebookLM</th>
+              <th>Canvas / Blackboard</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="compare-feature">Adoption Friction</td>
+              <td class="compare-highlight"><span class="compare-check">✅</span> Zero — it's WhatsApp</td>
+              <td><span class="compare-x">❌</span> Download & learn new app</td>
+              <td><span class="compare-x">❌</span> Clunky, separate login</td>
+            </tr>
+            <tr>
+              <td class="compare-feature">Multiplayer</td>
+              <td class="compare-highlight"><span class="compare-check">✅</span> Entire class shares one brain</td>
+              <td><span class="compare-x">❌</span> Built for solo study</td>
+              <td><span class="compare-mid">⚠️</span> Heavily siloed by profs</td>
+            </tr>
+            <tr>
+              <td class="compare-feature">Deadline Tracking</td>
+              <td class="compare-highlight"><span class="compare-check">✅</span> Auto-scheduled reminders</td>
+              <td><span class="compare-x">❌</span> Manual entry required</td>
+              <td><span class="compare-x">❌</span> Buried in PDFs</td>
+            </tr>
+            <tr>
+              <td class="compare-feature">Cost</td>
+              <td class="compare-highlight"><span class="compare-check">✅</span> Virtually free</td>
+              <td><span class="compare-mid">⚠️</span> Paid tiers for heavy use</td>
+              <td><span class="compare-x">❌</span> Institutions pay $$$</td>
+            </tr>
+            <tr>
+              <td class="compare-feature">AI-Powered Q&A</td>
+              <td class="compare-highlight"><span class="compare-check">✅</span> RAG on your notes</td>
+              <td><span class="compare-check">✅</span> Document Q&A</td>
+              <td><span class="compare-x">❌</span> None</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ ROADMAP ============ -->
+  <section class="roadmap" id="roadmap">
+    <div class="container">
+      <div class="section-header animate-on-scroll">
+        <span class="section-tag">Roadmap</span>
+        <h2 class="section-title">Where We're <span class="gradient-text">Heading</span></h2>
+        <p class="section-desc">Class Copilot is evolving. Here's what's coming next.</p>
+      </div>
+
+      <div class="roadmap-timeline">
+        <div class="roadmap-item animate-on-scroll">
+          <div class="roadmap-marker roadmap-now"></div>
+          <div class="roadmap-card">
+            <span class="roadmap-phase">Now — The MVP</span>
+            <ul>
+              <li>✅ WhatsApp listener via Baileys</li>
+              <li>✅ Smart Regex + LLM message classifier</li>
+              <li>✅ RAG Q&A using Supabase pgvector</li>
+              <li>✅ Auto-deadline scheduling</li>
+              <li>✅ Troll Shield guardrails</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="roadmap-item animate-on-scroll">
+          <div class="roadmap-marker roadmap-next"></div>
+          <div class="roadmap-card">
+            <span class="roadmap-phase">Next — Visual & Audio</span>
+            <ul>
+              <li>🔮 PYQ Predictor for exam topic mapping</li>
+              <li>🎤 Voice Note Transcription via Whisper</li>
+              <li>🖥️ Web Dashboard for notes outside WhatsApp</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="roadmap-item animate-on-scroll">
+          <div class="roadmap-marker roadmap-future"></div>
+          <div class="roadmap-card">
+            <span class="roadmap-phase">Future — Multi-modal</span>
+            <ul>
+              <li>📸 Handwritten Notes via OCR/Vision</li>
+              <li>🧩 Multi-Subject Routing for mega-groups</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ GET STARTED (CTA) ============ -->
+  <section class="cta-section" id="get-started">
+    <div class="container">
+      <div class="cta-card animate-on-scroll">
+        <div class="cta-glow"></div>
+        <h2 class="cta-title">Ready to Give Your Class <span class="gradient-text">Superpowers</span>?</h2>
+        <p class="cta-desc">Set up in 60 seconds. No signups. No downloads. Just your WhatsApp group + Class Copilot.</p>
+        <div class="cta-steps">
+          <div class="cta-step">
+            <div class="cta-step-num">1</div>
+            <span>Clone the repo</span>
+          </div>
+          <div class="cta-step-arrow">→</div>
+          <div class="cta-step">
+            <div class="cta-step-num">2</div>
+            <span>Add API keys</span>
+          </div>
+          <div class="cta-step-arrow">→</div>
+          <div class="cta-step">
+            <div class="cta-step-num">3</div>
+            <span>Scan QR code</span>
+          </div>
+          <div class="cta-step-arrow">→</div>
+          <div class="cta-step">
+            <div class="cta-step-num">4</div>
+            <span>Study smarter</span>
+          </div>
+        </div>
+        <div class="cta-code">
+          <code>git clone &lt;repo-url&gt; && cd class-copilot && npm install && npm start</code>
+          <button class="cta-copy" id="copy-btn" title="Copy to clipboard">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="6" y="6" width="10" height="10" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M12 6V4a2 2 0 00-2-2H4a2 2 0 00-2 2v6a2 2 0 002 2h2" stroke="currentColor" stroke-width="1.5"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FOOTER ============ -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a href="#" class="nav-logo">
+            <div class="logo-icon">
+              <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
+                <rect width="32" height="32" rx="8" fill="url(#logoGrad2)" />
+                <path d="M16 6C10.48 6 6 10.18 6 15.31C6 17.97 7.23 20.37 9.21 22.03L8.1 25.5L11.82 24.3C13.11 24.87 14.52 25.18 16 25.18C21.52 25.18 26 21 26 15.87C26 10.74 21.52 6 16 6Z" fill="white" opacity="0.9"/>
+                <circle cx="12" cy="15" r="1.5" fill="url(#logoGrad2)"/>
+                <circle cx="16" cy="15" r="1.5" fill="url(#logoGrad2)"/>
+                <circle cx="20" cy="15" r="1.5" fill="url(#logoGrad2)"/>
+                <defs>
+                  <linearGradient id="logoGrad2" x1="0" y1="0" x2="32" y2="32">
+                    <stop stop-color="#25D366" />
+                    <stop offset="1" stop-color="#128C7E" />
+                  </linearGradient>
+                </defs>
+              </svg>
+            </div>
+            <span class="logo-text">Class<span class="logo-accent">Copilot</span></span>
+          </a>
+          <p class="footer-tagline">The first AI agent built for your entire class.</p>
+        </div>
+        <div class="footer-links">
+          <h4>Product</h4>
+          <a href="#features">Features</a>
+          <a href="#how-it-works">How It Works</a>
+          <a href="#architecture">Architecture</a>
+          <a href="#roadmap">Roadmap</a>
+        </div>
+        <div class="footer-links">
+          <h4>Tech Stack</h4>
+          <a href="https://github.com/WhiskeySockets/Baileys" target="_blank" rel="noopener">Baileys</a>
+          <a href="https://groq.com" target="_blank" rel="noopener">Groq</a>
+          <a href="https://ai.google.dev" target="_blank" rel="noopener">Gemini</a>
+          <a href="https://supabase.com" target="_blank" rel="noopener">Supabase</a>
+        </div>
+        <div class="footer-links">
+          <h4>Legal</h4>
+          <a href="#">MIT License</a>
+          <a href="#">Privacy</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>© 2026 Class Copilot. Open source under MIT License.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Cursor glow effect -->
+  <div class="cursor-glow" id="cursor-glow"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
