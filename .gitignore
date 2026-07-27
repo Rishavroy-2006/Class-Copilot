@@ -1,5 +1,11 @@
+# OS-specific
+.DS_Store
+
+# Runtime
 .agents
 node_modules/
 auth/
+
+# Secrets
 .env
 !.env.example

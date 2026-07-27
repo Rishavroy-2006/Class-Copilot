@@ -122,6 +122,31 @@ async function generateAnswer(prompt, contextLength = 0) {
   throw new Error('No LLM provider available.');
 }
 
+/**
+ * Text embedding for pgvector storage/search.
+ * Uses Gemini's embedding model (free tier). Returns a 768-dim vector,
+ * or null if no Gemini key is configured / the call fails — callers must
+ * degrade gracefully (e.g. fall back to recency-based context).
+ */
+const EMBEDDING_MODEL = 'gemini-embedding-001';
+const EMBEDDING_DIMS = 768;
+
+async function embedText(text) {
+  if (!ai) return null;
+
+  try {
+    const response = await ai.models.embedContent({
+      model: EMBEDDING_MODEL,
+      contents: text.substring(0, 8000), // stay well under the embedding token limit
+      config: { outputDimensionality: EMBEDDING_DIMS },
+    });
+    return response.embeddings?.[0]?.values || null;
+  } catch (err) {
+    console.error('[llmRouter] Embedding failed:', err.message);
+    return null;
+  }
+}
+
 async function callGroq70B(prompt) {
   const completion = await groq.chat.completions.create({
     model: 'llama-3.3-70b-versatile',
@@ -135,5 +160,6 @@ async function callGroq70B(prompt) {
 module.exports = {
   checkPromptGuard,
   fastExtractJson,
-  generateAnswer
+  generateAnswer,
+  embedText
 };

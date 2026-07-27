@@ -49,7 +49,7 @@ async function startBridge() {
 
     for (const msg of messages) {
       if (!msg.message) continue; // skip protocol/system messages
-      // if (msg.key.fromMe) continue; // skip messages sent by this bot's own linked account
+      if (msg.key.fromMe) continue; // skip messages sent by this bot's own linked account
 
       const sender = msg.pushName || msg.key.participant || msg.key.remoteJid;
       const chatId = msg.key.remoteJid; // this is the group ID if it's a group message
@@ -63,24 +63,29 @@ async function startBridge() {
         msg.message.videoMessage?.caption ||
         '';
 
-      const { category, method } = await classifyMessage(text, msg);
+      // Catch errors per-message so one bad apple doesn't spoil the batch
+      try {
+        const { category, method } = await classifyMessage(text, msg);
 
-      console.log('---------------------------------');
-      console.log('From:', sender);
-      console.log('Chat:', isGroup ? `Group (${chatId})` : 'Direct message');
-      console.log('Text:', text);
-      console.log(`Category: ${category} (via ${method})`);
-      console.log('---------------------------------');
+        console.log('---------------------------------');
+        console.log('From:', sender);
+        console.log('Chat:', isGroup ? `Group (${chatId})` : 'Direct message');
+        console.log('Text:', text);
+        console.log(`Category: ${category} (via ${method})`);
+        console.log('---------------------------------');
 
-      // 👉 Next step: route based on category
-      if (category === 'NOTE') {
-        await handleNote(msg, text, chatId);
-      } else if (category === 'DEADLINE') {
-        await handleDeadline(sock, msg, text, chatId);
-      } else if (category === 'QUESTION') {
-        await handleQuestion(sock, msg, text, chatId);
+        // 👉 Next step: route based on category
+        if (category === 'NOTE') {
+          await handleNote(msg, text, chatId);
+        } else if (category === 'DEADLINE') {
+          await handleDeadline(sock, msg, text, chatId);
+        } else if (category === 'QUESTION') {
+          await handleQuestion(sock, msg, text, chatId);
+        }
+        // NOISE messages are simply skipped
+      } catch (err) {
+        console.error(`[index] Failed to process message ${msg.key.id}:`, err);
       }
-      // NOISE messages are simply skipped
     }
   });
 }

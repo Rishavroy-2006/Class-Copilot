@@ -4,10 +4,12 @@ const { createClient } = require('@supabase/supabase-js');
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_KEY;
 
+// Fail fast: without a database every handler breaks in confusing ways downstream.
 if (!supabaseUrl || !supabaseKey) {
-  console.warn('⚠️  Supabase URL or Key is missing from .env. Database features will not work.');
+  console.error('❌ SUPABASE_URL and SUPABASE_KEY are required in .env (copy .env.example and fill it in).');
+  process.exit(1);
 }
 
-const supabase = createClient(supabaseUrl || 'https://placeholder.supabase.co', supabaseKey || 'placeholder');
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 module.exports = supabase;

@@ -1,15 +1,28 @@
 {
-  "name": "class-copilot-bridge",
+  "name": "class-copilot",
   "version": "1.0.0",
-  "description": "",
+  "description": "The first AI agent built for your entire class — plug into any WhatsApp group in under 60 seconds.",
   "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/USERNAME/class-copilot.git"
+  },
   "scripts": {
     "start": "node index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node --test"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": [
+    "whatsapp",
+    "ai",
+    "bot",
+    "rag",
+    "llama",
+    "gemini",
+    "supabase",
+    "pgvector"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
   "dependencies": {
     "@google/genai": "^2.13.0",
     "@hapi/boom": "^10.0.1",
