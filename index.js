@@ -86,7 +86,23 @@ async function startBridge() {
         } else if (category === 'DEADLINE') {
           await handleDeadline(sock, msg, text, chatId);
         } else if (category === 'QUESTION') {
-          await handleQuestion(sock, msg, text, chatId);
+          // Normalize bot's JID (remove device suffix if present)
+          const botJid = sock.user.id.split(':')[0] + '@s.whatsapp.net';
+          
+          // Check if bot was @mentioned in the group
+          const mentionedJids = msg.message?.extendedTextMessage?.contextInfo?.mentionedJid || [];
+          const isMentioned = mentionedJids.includes(botJid);
+          
+          // Check if the user is directly replying to a previous bot message
+          const repliedToJid = msg.message?.extendedTextMessage?.contextInfo?.participant;
+          const isReplyToBot = repliedToJid === botJid;
+
+          // Only answer group questions if explicitly mentioned or replied to. Always answer DMs.
+          if (!isGroup || isMentioned || isReplyToBot) {
+            await handleQuestion(sock, msg, text, chatId);
+          } else {
+            console.log('[index] Skipped group question because bot was not @mentioned.');
+          }
         }
         // NOISE messages are simply skipped
       } catch (err) {
