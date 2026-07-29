@@ -2,6 +2,7 @@ const {
   default: makeWASocket,
   useMultiFileAuthState,
   DisconnectReason,
+  fetchLatestBaileysVersion,
 } = require('@whiskeysockets/baileys');
 const { Boom } = require('@hapi/boom');
 const qrcode = require('qrcode-terminal');
@@ -14,8 +15,13 @@ const { handleQuestion } = require('./handlers/questionHandler');
 async function startBridge() {
   // Saves your login session to ./auth so you don't have to re-scan the QR every time
   const { state, saveCreds } = await useMultiFileAuthState('auth');
+  
+  // Fetch the absolute latest WhatsApp Web version to avoid connection blocks
+  const { version, isLatest } = await fetchLatestBaileysVersion();
+  console.log(`[system] using WA v${version.join('.')}, isLatest: ${isLatest}`);
 
   const sock = makeWASocket({
+    version,
     auth: state,
     logger: pino({ level: 'silent' }), // set to 'info' if you want verbose connection logs
   });
