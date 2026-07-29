@@ -27,7 +27,7 @@ const DEADLINE_KEYWORDS = /\b(deadline|last\s*date|due|submit|submission|registe
 const DATE_PATTERN = /\b(\d{1,2}(st|nd|rd|th)?\s*(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*|\d{1,2}[/-]\d{1,2}([/-]\d{2,4})?|tomorrow|tmrw|today|tonight|monday|tuesday|wednesday|thursday|friday|saturday|sunday|(on|by)\s*\d{1,2}(st|nd|rd|th)?)\b/i;
 const TIME_PATTERN = /\b\d{1,2}(:\d{2})?\s*(am|pm|a\.m\.|p\.m\.|noon)\b/i;
 
-const NOISE_PATTERN = /^(lol+|lmao+|rofl+|ha+|ok+|okay+|k+|yes+|yeah+|yup+|no+|nope+|cool+|nice+|great+|awesome+|done+|noted+|got it+|thanks+|thank you+|thx+|tq+|welcome+|haha+|hehe+|hi+|hello+|hey+|sup+|morning+|evening+|omg+|wtf+|damn+|acha+|thikache+|hm+|oh+|fuck+|ouh+|shit+|test\s*\d*)$/i;
+const NOISE_PATTERN = /^(lol+|lmao+|rofl+|ha+|ok+|okay+|k+|yes+|yeah+|yup+|no+|nope+|na+|n\/a+|cool+|nice+|great+|awesome+|done+|noted+|got it+|thanks+|thank you+|thx+|tq+|welcome+|haha+|hehe+|hi+|hello+|hey+|sup+|hola+|morning+|evening+|night+|good+|omg+|wtf+|damn+|acha+|thikache+|hm+|oh+|fuck+|ouh+|shit+|bye+|bro+|dude+|man+|sir+|maam+|ma'am+|amigo+|everyone+|all+|guys+|please+|pls+|sure+|test\s*\d*|\s+)+$/i;
 const EMOJI_ONLY_PATTERN = /^[\p{Extended_Pictographic}\s]+$/u;
 const ABSENCE_PATTERN = /\b(out\s+of\s+station|out\s+of\s+kolkata|can't\s+attend|cannot\s+attend|won't\s+attend|family\s+urgency|family\s+emergency|sorry\s+ma'?m|not\s+able\s+to\s+attend)\b/i;
 const SYSTEM_PATTERN = /(message\s+was\s+deleted|media\s+omitted|pinned\s+a\s+message|added\s+the\s+group|removed\s+the\s+group|community\s+admin|changed\s+the\s+description)/i;
