@@ -61,6 +61,9 @@ async function startBridge() {
       const chatId = msg.key.remoteJid; // this is the group ID if it's a group message
       const isGroup = chatId?.endsWith('@g.us');
 
+      // Class Copilot only operates in group chats — silently ignore DMs and broadcasts
+      if (!isGroup) continue;
+
       const text =
         msg.message.conversation ||
         msg.message.extendedTextMessage?.text ||
