@@ -35,7 +35,7 @@ const SYSTEM_PATTERN = /(message\s+was\s+deleted|media\s+omitted|pinned\s+a\s+me
 const NOTE_PATTERN = /\b(notes?|pdf|ppt|pptx|document|docx|brochure|notice|circular|schedule|routine|timetable|guideline|manual|syllabus|material|resource|question\s*paper|attachment|attached|media|image|flyer|list|updated\s*list|please\s*find|uploaded|\.pdf|\.pptx?|\.docx?)\b/i;
 const NOTE_URL_PATTERN = /(drive\.google|docs\.google|forms\.gle|docs\.google\.com\/forms|nit\.ac\.in|devfolio|github|skillindiadigital|sbh\.rcciit|instagram\.com|facebook\.com|1drv\.ms|onedrive\.live\.com|mega\.nz)/i;
 
-const QUESTION_PATTERN = /(\?$|^(what|why|who|where|when|how|can|could|will|would|does|do|is|are|whose)\b|^any(one|body)\b|^any(one|body)\s+ha(s|ve)\b|^has\s+anyone\b|^can\s+(someone|anyone)\b|^pls\b|^please\b.*\b(send|share|give)\b|\b(need|send|share|provide)\s+(notes|pdf|link|material|assignment|syllabus)\b|where\s+can\s+i|roll\s+no)/i;
+const QUESTION_PATTERN = /(\?(\s*@\d+)*$|^(what|why|who|where|when|how|can|could|will|would|does|do|is|are|whose)\b|^any(one|body)\b|^any(one|body)\s+ha(s|ve)\b|^has\s+anyone\b|^can\s+(someone|anyone)\b|^pls\b|^please\b.*\b(send|share|give)\b|\b(need|send|share|provide)\s+(notes|pdf|link|material|assignment|syllabus)\b|where\s+can\s+i|roll\s+no)/i;
 
 const ANNOUNCEMENT_PATTERN = /(dear\s+(students|all)|please\s+note|kindly|attention|this\s+is\s+for\s+your\s+information|you\s+are\s+requested|you\s+are\s+advised|gentle\s+reminder)/i;
 const IMPORTANT_ANNOUNCEMENT_PATTERN = /\b(urgent|important|attention|notice|action\s+required)\b/i;

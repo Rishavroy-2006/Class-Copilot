@@ -86,12 +86,22 @@ async function startBridge() {
         } else if (category === 'DEADLINE') {
           await handleDeadline(sock, msg, text, chatId);
         } else if (category === 'QUESTION') {
-          // Normalize bot's JID (remove device suffix if present)
-          const botJid = sock.user.id.split(':')[0] + '@s.whatsapp.net';
+          // Normalize bot's JID safely (strip any existing :port or @domain first)
+          const botNumber = sock.user.id.split(':')[0].split('@')[0];
+          const botJid = `${botNumber}@s.whatsapp.net`;
+          // WhatsApp uses a privacy-preserving Linked ID (LID) for group mentions
+          const botLid = sock.user.lid ? sock.user.lid.split(':')[0].split('@')[0] : null;
           
-          // Check if bot was @mentioned in the group
+          // Check if bot was @mentioned: match phone JID, LID, or raw text tag
           const mentionedJids = msg.message?.extendedTextMessage?.contextInfo?.mentionedJid || [];
-          const isMentioned = mentionedJids.includes(botJid);
+          const isMentioned =
+            mentionedJids.includes(botJid) ||
+            (botLid && mentionedJids.some(jid => jid.split('@')[0] === botLid)) ||
+            text.includes(`@${botNumber}`);
+          
+          console.log(`[debug] botNumber: ${botNumber}, botLid: ${botLid}`);
+          console.log(`[debug] mentionedJids:`, mentionedJids);
+          console.log(`[debug] isMentioned: ${isMentioned}`);
           
           // Check if the user is directly replying to a previous bot message
           const repliedToJid = msg.message?.extendedTextMessage?.contextInfo?.participant;

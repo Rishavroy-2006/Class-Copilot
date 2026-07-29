@@ -1,9 +1,25 @@
 const { downloadContentFromMessage } = require('@whiskeysockets/baileys');
 const pdfParse = require('pdf-parse');
+const crypto = require('crypto');
 const supabase = require('../supabaseClient');
 const { fastExtractJson, embedText } = require('../llmRouter');
 
 const MAX_PDF_SIZE_MB = 10;
+const JACCARD_THRESHOLD = 0.85; // notes with >85% word overlap are considered duplicates
+
+/**
+ * Computes Jaccard similarity between two strings based on their word sets.
+ * Returns a value between 0 (completely different) and 1 (identical).
+ */
+function jaccardSimilarity(a, b) {
+  const tokenize = str => new Set(str.toLowerCase().replace(/[^a-z0-9\s]/g, '').split(/\s+/).filter(Boolean));
+  const setA = tokenize(a);
+  const setB = tokenize(b);
+  if (setA.size === 0 && setB.size === 0) return 1;
+  const intersection = new Set([...setA].filter(w => setB.has(w)));
+  const union = new Set([...setA, ...setB]);
+  return intersection.size / union.size;
+}
 
 async function extractSubjectFromText(text) {
   const prompt = `Analyze the following text and determine the most likely academic subject (e.g., Mathematics, Physics, History, Computer Science).
@@ -58,6 +74,38 @@ async function handleNote(msg, text, chatId) {
       contentToSave = imgMessage.caption || '[photo note - OCR pending]';
     }
 
+    // --- Deduplication: skip if identical content was already saved for this chat ---
+    const contentHash = crypto.createHash('sha256').update(contentToSave.trim()).digest('hex');
+    const { data: existing } = await supabase
+      .from('notes')
+      .select('id')
+      .eq('chat_id', chatId)
+      .eq('content_hash', contentHash)
+      .limit(1);
+
+    if (existing && existing.length > 0) {
+      console.log('[noteHandler] Duplicate note detected (exact match) — skipping save.');
+      return;
+    }
+
+    // --- Fuzzy deduplication: skip if a very similar note already exists (Jaccard similarity) ---
+    const { data: recentNotes } = await supabase
+      .from('notes')
+      .select('content')
+      .eq('chat_id', chatId)
+      .order('created_at', { ascending: false })
+      .limit(20);
+
+    if (recentNotes) {
+      for (const note of recentNotes) {
+        const score = jaccardSimilarity(contentToSave, note.content);
+        if (score >= JACCARD_THRESHOLD) {
+          console.log(`[noteHandler] Near-duplicate note detected (Jaccard: ${score.toFixed(2)}) — skipping save.`);
+          return;
+        }
+      }
+    }
+
     if (contentToSave.length > 20) {
        subject = await extractSubjectFromText(contentToSave);
     }
@@ -69,7 +117,7 @@ async function handleNote(msg, text, chatId) {
     const { data, error } = await supabase
       .from('notes')
       .insert([
-        { chat_id: chatId, subject: subject, content: contentToSave, embedding: embedding }
+        { chat_id: chatId, subject: subject, content: contentToSave, content_hash: contentHash, embedding: embedding }
       ]);
 
     if (error) {
