@@ -1,10 +1,15 @@
 # OS-specific
 .DS_Store
+*.log
+*.log.*
+.vscode/
 
 # Runtime
 .agents
 node_modules/
 auth/
+auth_old*/
+skills-lock.json
 
 # Secrets
 .env
