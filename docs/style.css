@@ -79,6 +79,7 @@
 
 html {
   scroll-behavior: smooth;
+  scroll-padding-top: 80px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -94,6 +95,11 @@ body {
 a {
   text-decoration: none;
   color: inherit;
+  cursor: pointer;
+}
+
+button {
+  cursor: pointer;
 }
 
 img {
@@ -116,6 +122,9 @@ img {
   height: 100%;
   z-index: 0;
   pointer-events: none;
+  /* GPU layer promotion — prevents compositor from re-painting on every frame */
+  will-change: transform;
+  transform: translateZ(0);
 }
 
 /* ===== Cursor Glow ===== */
@@ -1631,4 +1640,61 @@ img {
 ::selection {
   background: rgba(37, 211, 102, 0.3);
   color: white;
+}
+
+/* ===== Utility: visually hidden (for table caption accessibility) ===== */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ===== Free stat label (skip counter animation) ===== */
+.stat-free {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: var(--wa-green);
+  letter-spacing: -0.02em;
+}
+
+/* ===== Mobile nav drawer CTA ===== */
+.nav-cta-drawer {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .nav-cta-drawer {
+    display: flex;
+    margin-top: 8px;
+  }
+}
+
+/* ===== Keyboard focus rings ===== */
+:focus-visible {
+  outline: 2px solid var(--wa-green);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* ===== Active nav section indicator ===== */
+.nav-link.section-active {
+  color: var(--wa-green);
+  position: relative;
+}
+
+.nav-link.section-active::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: var(--wa-green);
+  border-radius: 2px;
 }

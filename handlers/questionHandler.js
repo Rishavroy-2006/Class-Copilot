@@ -48,15 +48,19 @@ async function fetchNotesByRecency(chatId) {
 }
 
 async function handleQuestion(sock, msg, text, chatId) {
+  // Strip @mention tags (e.g. @139234266640490) so they don't
+  // bleed into the LLM prompt or appear in the bot's reply.
+  const cleanText = text.replace(/@\d+/g, '').trim();
+
   if (isRateLimited(chatId)) {
     console.log(`[questionHandler] Rate limited, skipping question in ${chatId}`);
     return;
   }
 
   // --- TROLL SHIELD (PROMPT GUARD via llmRouter) ---
-  const { isTroll, score } = await checkPromptGuard(text);
+  const { isTroll, score } = await checkPromptGuard(cleanText);
   if (isTroll) {
-    console.log(`[questionHandler] Troll Shield (Score: ${score.toFixed(3)}) activated for: "${text}"`);
+    console.log(`[questionHandler] Troll Shield (Score: ${score.toFixed(3)}) activated for: "${cleanText}"`);
     lastAnsweredAt.set(chatId, Date.now()); // troll replies count against the cooldown too
     await sock.sendMessage(chatId, { text: `🤖 *Class Copilot AI*\n\nNice try, but I'm only here to answer class and academic questions! 😉` });
     return;
@@ -74,7 +78,7 @@ async function handleQuestion(sock, msg, text, chatId) {
       .limit(5);
 
     // Prefer vector search; fall back to the 5 most recent notes
-    const notes = (await fetchNotesByVector(chatId, text)) || (await fetchNotesByRecency(chatId));
+    const notes = (await fetchNotesByVector(chatId, cleanText)) || (await fetchNotesByRecency(chatId));
 
     if (deadlines && deadlines.length > 0) {
       contextText += '\nStored Group Deadlines/Announcements:\n' +
@@ -103,7 +107,7 @@ CRITICAL RULES:
 ${contextText || 'No previous context stored yet.'}
 </context>
 
-Student Question: "${text}"
+Student Question: "${cleanText}"
 
 Answer:`;
 

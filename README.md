@@ -17,7 +17,7 @@ But they cannot organize it all — until now.
 
 Class Copilot is a full-featured AI agent that gives your existing WhatsApp group the ability to autonomously capture notes, track deadlines, and answer complex questions based on your class material. No new apps to download. No confusing dashboards. No friction unless you want it.
 
-**demo:** https://youtu.be/your-demo-link-here
+**demo:** _Coming soon — video demo in progress_
 
 ---
 
@@ -57,7 +57,7 @@ sequenceDiagram
 graph TD
     subgraph Frontend Layer
         WA[WhatsApp Group]
-        DASH[Web Dashboard - Coming Soon]
+        LP[Static Landing Page - docs/]
     end
 
     subgraph Bridge Layer
@@ -111,7 +111,7 @@ graph TD
 Class Copilot is lightweight and designed to run entirely locally or on a cheap VPS. 
 
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/Rishavroy-2006/Class-Copilot.git
 cd class-copilot
 npm install
 ```
@@ -141,6 +141,7 @@ cp .env.example .env
 
 | Handler | Description |
 |---|---|
+| `groupGuard` | Strictly ignores DMs and broadcasts; bot only listens inside group chats (`@g.us`) |
 | `classifyMessage` | Hybrid Regex + 8B LLM router that sorts noise from signal instantly |
 | `handleNote` | Detects PDFs, extracts raw text via `pdf-parse`, and stores vectors |
 | `handleDeadline` | Parses dates from chat and auto-schedules reminders |
@@ -172,12 +173,15 @@ What happens:
 
 ---
 
-## Security
+## Security & Disclaimers
 
+- **Group-Only Privacy** — The bot physically cannot read Direct Messages or Broadcasts. The global guardrail drops all non-group (`@g.us`) traffic at the socket level.
 - **Troll Shield** — A dedicated 86M guardrail model intercepts all queries before they hit the expensive LLM.
 - **Local Auth** — WhatsApp session tokens are stored locally in the `/auth` folder. They never touch the cloud.
 - **Backend-Only Secrets** — Built as a strict Node.js backend. No React/Next.js frontend exposure (`NEXT_PUBLIC_`) vulnerabilities.
 - **No Database Exposure** — Connects to Supabase exclusively via the secure `service_role` key.
+- **Hackathon Disclosure:** This project uses an unofficial library (Baileys) to connect to WhatsApp rather than Meta's official Business API (which requires business verification and limits group functionality). Treat this as a demo-scale bridge. 
+- **Git Security:** Ensure all API keys are strictly stored in `.env`. If you accidentally hardcode a key and commit it, you must revoke and regenerate it immediately, as it stays in your Git history forever.
 
 ---
 
@@ -196,10 +200,12 @@ What happens:
 
 **Now — The MVP**
 - WhatsApp listener via Baileys
+- Global Group-Only Privacy Guard
 - Smart Regex + LLM message classifier
 - RAG Q&A using Supabase pgvector
 - Auto-deadline scheduling 
 - Troll Shield guardrails
+- 3D Scroll-Animated Landing Page (`/docs`)
 
 **Next — Visual & Audio Expansion**
 - **PYQ Predictor:** Upload past papers and let the AI map out high-probability exam topics.
@@ -212,7 +218,7 @@ What happens:
 
 ---
 
-## Tech Stack
+## Tech Stack & License
 
 - **Language:** JavaScript (Node.js 18+)
 - **Bridge:** `@whiskeysockets/baileys`
@@ -220,16 +226,4 @@ What happens:
 - **Primary LLM:** Groq (`llama-3.3-70b`, `llama-3.1-8b`, `prompt-guard`)
 - **Fallback LLM:** Google Gemini (`gemini-3.5-flash-lite`)
 
----
-
-## A Quick Heads Up
-
-**Hackathon Disclosure:** This project uses an unofficial library (Baileys) to connect to WhatsApp rather than Meta's official Business API (which requires business verification and limits group functionality). Treat this as a demo-scale bridge. 
-
-**Git Security:** Ensure all API keys are strictly stored in `.env`. If you accidentally hardcode a key and commit it, you must revoke and regenerate it immediately, as it stays in your Git history forever.
-
----
-
-## License
-
-MIT — see [LICENSE](./LICENSE)
+This project is open-sourced under the MIT License — see [LICENSE](./LICENSE).

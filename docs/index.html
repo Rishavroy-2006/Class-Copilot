@@ -5,15 +5,32 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Class Copilot — AI Agent for Your WhatsApp Study Group</title>
   <meta name="description" content="The first AI agent built for your entire class. Plug into any WhatsApp group in under 60 seconds. Notes, deadlines, and answers — all automated." />
-  <meta name="keywords" content="Class Copilot, WhatsApp AI, study group bot, student AI agent, notes automation, deadline tracker" />
 
-  <!-- Google Fonts -->
+  <!-- Open Graph / Social Sharing -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Class Copilot — AI Agent for Your WhatsApp Study Group" />
+  <meta property="og:description" content="The first AI agent built for your entire class. Drop it into any WhatsApp group — it captures notes, tracks deadlines, and answers questions from your actual class material." />
+  <meta property="og:image" content="og-image.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Class Copilot — AI for your study group" />
+  <meta name="twitter:description" content="Notes, deadlines, and AI Q&A — all inside WhatsApp. Zero new apps." />
+  <meta name="twitter:image" content="og-image.png" />
+
+  <!-- Favicon -->
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+
+  <!-- Google Fonts (used weights only) -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
-  <!-- Three.js for 3D -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <!-- Three.js for 3D (deferred, integrity-pinned) -->
+  <script
+    src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"
+    integrity="sha384-CI3ELBVUz9XQO+97x6nwMDPosPR5XvsxW2ua7N1Xeygeh1IxtgqtCkGfQY9WWdHu"
+    crossorigin="anonymous"
+    defer
+  ></script>
 
   <link rel="stylesheet" href="style.css" />
 </head>
@@ -34,7 +51,7 @@
   <!-- ============ NAVBAR ============ -->
   <nav class="navbar" id="navbar">
     <div class="nav-container">
-      <a href="#" class="nav-logo">
+      <a href="#hero" class="nav-logo">
         <div class="logo-icon">
           <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
             <rect width="32" height="32" rx="8" fill="url(#logoGrad)" />
@@ -52,18 +69,23 @@
         </div>
         <span class="logo-text">Class<span class="logo-accent">Copilot</span></span>
       </a>
-      <div class="nav-links" id="nav-links">
+      <div class="nav-links" id="nav-links" role="navigation">
         <a href="#features" class="nav-link">Features</a>
         <a href="#how-it-works" class="nav-link">How It Works</a>
         <a href="#architecture" class="nav-link">Architecture</a>
         <a href="#compare" class="nav-link">Compare</a>
         <a href="#roadmap" class="nav-link">Roadmap</a>
+        <!-- Mobile-only CTA inside the drawer -->
+        <a href="#get-started" class="nav-cta nav-cta-drawer">
+          <span>Get Started</span>
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
       </div>
       <a href="#get-started" class="nav-cta">
         <span>Get Started</span>
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </a>
-      <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation">
+      <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation" aria-expanded="false" aria-controls="nav-links">
         <span></span><span></span><span></span>
       </button>
     </div>
@@ -102,19 +124,19 @@
         </div>
         <div class="stat-divider"></div>
         <div class="stat">
-          <span class="stat-number" data-target="99.9">0</span><span class="stat-unit">%</span>
-          <span class="stat-label">Uptime</span>
+          <span class="stat-number" data-target="2">0</span><span class="stat-unit">×</span>
+          <span class="stat-label">LLM Redundancy</span>
         </div>
         <div class="stat-divider"></div>
         <div class="stat">
-          <span class="stat-number" data-target="0">0</span><span class="stat-unit">$</span>
+          <span class="stat-number stat-free">Free</span>
           <span class="stat-label">Cost</span>
         </div>
       </div>
     </div>
 
     <!-- Animated WhatsApp Phone Mockup -->
-    <div class="hero-visual animate-on-scroll">
+    <div class="hero-visual animate-on-scroll" aria-hidden="true">
       <div class="phone-mockup">
         <div class="phone-notch"></div>
         <div class="phone-screen">
@@ -360,7 +382,7 @@
       <div class="section-header animate-on-scroll">
         <span class="section-tag">Architecture</span>
         <h2 class="section-title">Built for <span class="gradient-text">Reliability</span></h2>
-        <p class="section-desc">Triple-redundant LLM routing ensures 99.9% uptime. If Groq is down, Gemini takes over — seamlessly.</p>
+        <p class="section-desc">Auto-failover across Groq + Gemini ensures your class is never left without an answer. If one is down, the other picks up — seamlessly.</p>
       </div>
 
       <div class="arch-diagram animate-on-scroll">
@@ -446,47 +468,48 @@
 
       <div class="compare-table-wrap animate-on-scroll">
         <table class="compare-table">
+          <caption class="visually-hidden">Feature comparison: Class Copilot vs NotebookLM vs Canvas/Blackboard</caption>
           <thead>
             <tr>
-              <th></th>
-              <th class="compare-highlight">
+              <th scope="col"></th>
+              <th scope="col" class="compare-highlight">
                 <div class="compare-badge">⭐ Recommended</div>
                 Class Copilot
               </th>
-              <th>NotebookLM</th>
-              <th>Canvas / Blackboard</th>
+              <th scope="col">NotebookLM</th>
+              <th scope="col">Canvas / Blackboard</th>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <td class="compare-feature">Adoption Friction</td>
-              <td class="compare-highlight"><span class="compare-check">✅</span> Zero — it's WhatsApp</td>
-              <td><span class="compare-x">❌</span> Download & learn new app</td>
-              <td><span class="compare-x">❌</span> Clunky, separate login</td>
+              <th scope="row" class="compare-feature">Adoption Friction</th>
+              <td class="compare-highlight"><span class="compare-check" aria-label="Yes">✅</span> Zero — it's WhatsApp</td>
+              <td><span class="compare-x" aria-label="No">❌</span> Download & learn new app</td>
+              <td><span class="compare-x" aria-label="No">❌</span> Clunky, separate login</td>
             </tr>
             <tr>
-              <td class="compare-feature">Multiplayer</td>
-              <td class="compare-highlight"><span class="compare-check">✅</span> Entire class shares one brain</td>
-              <td><span class="compare-x">❌</span> Built for solo study</td>
-              <td><span class="compare-mid">⚠️</span> Heavily siloed by profs</td>
+              <th scope="row" class="compare-feature">Multiplayer</th>
+              <td class="compare-highlight"><span class="compare-check" aria-label="Yes">✅</span> Entire class shares one brain</td>
+              <td><span class="compare-x" aria-label="No">❌</span> Built for solo study</td>
+              <td><span class="compare-mid" aria-label="Partial">⚠️</span> Heavily siloed by profs</td>
             </tr>
             <tr>
-              <td class="compare-feature">Deadline Tracking</td>
-              <td class="compare-highlight"><span class="compare-check">✅</span> Auto-scheduled reminders</td>
-              <td><span class="compare-x">❌</span> Manual entry required</td>
-              <td><span class="compare-x">❌</span> Buried in PDFs</td>
+              <th scope="row" class="compare-feature">Deadline Tracking</th>
+              <td class="compare-highlight"><span class="compare-check" aria-label="Yes">✅</span> Auto-scheduled reminders</td>
+              <td><span class="compare-x" aria-label="No">❌</span> Manual entry required</td>
+              <td><span class="compare-x" aria-label="No">❌</span> Buried in PDFs</td>
             </tr>
             <tr>
-              <td class="compare-feature">Cost</td>
-              <td class="compare-highlight"><span class="compare-check">✅</span> Virtually free</td>
-              <td><span class="compare-mid">⚠️</span> Paid tiers for heavy use</td>
-              <td><span class="compare-x">❌</span> Institutions pay $$$</td>
+              <th scope="row" class="compare-feature">Cost</th>
+              <td class="compare-highlight"><span class="compare-check" aria-label="Yes">✅</span> Virtually free</td>
+              <td><span class="compare-mid" aria-label="Partial">⚠️</span> Paid tiers for heavy use</td>
+              <td><span class="compare-x" aria-label="No">❌</span> Institutions pay $$$</td>
             </tr>
             <tr>
-              <td class="compare-feature">AI-Powered Q&A</td>
-              <td class="compare-highlight"><span class="compare-check">✅</span> RAG on your notes</td>
-              <td><span class="compare-check">✅</span> Document Q&A</td>
-              <td><span class="compare-x">❌</span> None</td>
+              <th scope="row" class="compare-feature">AI-Powered Q&A</th>
+              <td class="compare-highlight"><span class="compare-check" aria-label="Yes">✅</span> RAG on your notes</td>
+              <td><span class="compare-check" aria-label="Yes">✅</span> Document Q&A</td>
+              <td><span class="compare-x" aria-label="No">❌</span> None</td>
             </tr>
           </tbody>
         </table>
@@ -573,7 +596,7 @@
           </div>
         </div>
         <div class="cta-code">
-          <code>git clone &lt;repo-url&gt; && cd class-copilot && npm install && npm start</code>
+          <code>git clone https://github.com/Rishavroy-2006/Class-Copilot.git &amp;&amp; cd Class-Copilot &amp;&amp; npm install &amp;&amp; npm start</code>
           <button class="cta-copy" id="copy-btn" title="Copy to clipboard">
             <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="6" y="6" width="10" height="10" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M12 6V4a2 2 0 00-2-2H4a2 2 0 00-2 2v6a2 2 0 002 2h2" stroke="currentColor" stroke-width="1.5"/></svg>
           </button>
@@ -587,7 +610,7 @@
     <div class="container">
       <div class="footer-grid">
         <div class="footer-brand">
-          <a href="#" class="nav-logo">
+          <a href="#hero" class="nav-logo">
             <div class="logo-icon">
               <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
                 <rect width="32" height="32" rx="8" fill="url(#logoGrad2)" />
@@ -623,8 +646,7 @@
         </div>
         <div class="footer-links">
           <h4>Legal</h4>
-          <a href="#">MIT License</a>
-          <a href="#">Privacy</a>
+          <a href="https://github.com/Rishavroy-2006/Class-Copilot/blob/main/LICENSE" target="_blank" rel="noopener">MIT License</a>
         </div>
       </div>
       <div class="footer-bottom">
@@ -636,6 +658,6 @@
   <!-- Cursor glow effect -->
   <div class="cursor-glow" id="cursor-glow"></div>
 
-  <script src="script.js"></script>
+  <script src="script.js" defer></script>
 </body>
 </html>

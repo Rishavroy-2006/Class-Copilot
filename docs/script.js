@@ -5,6 +5,9 @@
 
 // ===== THREE.JS 3D BACKGROUND SCENE =====
 (function initThreeScene() {
+  // Skip on mobile — 600 particles are invisible behind content anyway
+  if (window.matchMedia('(max-width: 900px)').matches) return;
+
   const canvas = document.getElementById('bg-canvas');
   if (!canvas || typeof THREE === 'undefined') return;
 
@@ -128,11 +131,18 @@
     targetMouseY = (e.clientY / window.innerHeight - 0.5) * 2;
   });
 
-  // Scroll interaction
+  // Scroll-Y tracker — throttled with RAF + ticking for performance
   let scrollY = 0;
+  let scrollTicking = false;
   window.addEventListener('scroll', () => {
-    scrollY = window.pageYOffset;
-  });
+    if (!scrollTicking) {
+      scrollTicking = true;
+      requestAnimationFrame(() => {
+        scrollY = window.pageYOffset;
+        scrollTicking = false;
+      });
+    }
+  }, { passive: true });
 
   // Animation loop
   const clock = new THREE.Clock();
@@ -191,6 +201,9 @@
 
 // ===== CURSOR GLOW EFFECT =====
 (function initCursorGlow() {
+  // Skip cursor glow on small screens
+  if (window.matchMedia('(max-width: 900px)').matches) return;
+
   const glow = document.getElementById('cursor-glow');
   if (!glow) return;
 
@@ -229,21 +242,73 @@
     }
   });
 
-  // Mobile toggle
+  // Mobile toggle with accessibility
   if (toggle && links) {
+    function openMenu() {
+      links.classList.add('active');
+      toggle.classList.add('active');
+      toggle.setAttribute('aria-expanded', 'true');
+      document.body.style.overflow = 'hidden'; // lock scroll
+    }
+
+    function closeMenu() {
+      links.classList.remove('active');
+      toggle.classList.remove('active');
+      toggle.setAttribute('aria-expanded', 'false');
+      document.body.style.overflow = ''; // restore scroll
+    }
+
     toggle.addEventListener('click', () => {
-      links.classList.toggle('active');
-      toggle.classList.toggle('active');
+      const isOpen = links.classList.contains('active');
+      isOpen ? closeMenu() : openMenu();
     });
 
-    // Close on link click
-    links.querySelectorAll('.nav-link').forEach(link => {
-      link.addEventListener('click', () => {
-        links.classList.remove('active');
-        toggle.classList.remove('active');
-      });
+    // Close on nav-link click
+    links.querySelectorAll('.nav-link, .nav-cta-drawer').forEach(link => {
+      link.addEventListener('click', closeMenu);
+    });
+
+    // Close on Escape
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && links.classList.contains('active')) {
+        closeMenu();
+        toggle.focus();
+      }
+    });
+
+    // Close on outside click
+    document.addEventListener('click', (e) => {
+      if (links.classList.contains('active') && !links.contains(e.target) && !toggle.contains(e.target)) {
+        closeMenu();
+      }
     });
   }
+})();
+
+
+// ===== ACTIVE NAV SECTION HIGHLIGHTING =====
+(function initActiveSectionNav() {
+  const navLinks = document.querySelectorAll('.nav-link[href^="#"]');
+  if (!navLinks.length) return;
+
+  const sections = Array.from(navLinks)
+    .map(link => document.querySelector(link.getAttribute('href')))
+    .filter(Boolean);
+
+  const sectionObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          navLinks.forEach(link => link.classList.remove('section-active'));
+          const activeLink = document.querySelector(`.nav-link[href="#${entry.target.id}"]`);
+          if (activeLink) activeLink.classList.add('section-active');
+        }
+      });
+    },
+    { rootMargin: '-40% 0px -55% 0px', threshold: 0 }
+  );
+
+  sections.forEach(section => sectionObserver.observe(section));
 })();
 
 
@@ -290,7 +355,11 @@
     { threshold: 0.5 }
   );
 
-  counters.forEach((counter) => counterObserver.observe(counter));
+  counters.forEach((counter) => {
+    // Skip non-numeric stats (e.g. "Free" label)
+    if (counter.classList.contains('stat-free')) return;
+    counterObserver.observe(counter);
+  });
 
   function animateCounter(el) {
     const target = parseFloat(el.dataset.target);
@@ -352,20 +421,10 @@
 })();
 
 
-// ===== SMOOTH SCROLL FOR ANCHOR LINKS =====
-(function initSmoothScroll() {
-  document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
-    anchor.addEventListener('click', function (e) {
-      e.preventDefault();
-      const target = document.querySelector(this.getAttribute('href'));
-      if (target) {
-        const offset = 80;
-        const top = target.getBoundingClientRect().top + window.pageYOffset - offset;
-        window.scrollTo({ top, behavior: 'smooth' });
-      }
-    });
-  });
-})();
+// ===== SMOOTH SCROLL =====
+// Handled natively by CSS scroll-behavior + scroll-padding-top on html.
+// No JS needed — removing the old handler eliminates crashes on href="#" links.
+
 
 
 // ===== PARALLAX TILT ON FEATURE CARDS =====
@@ -400,7 +459,7 @@
 
   const msgs = chat.querySelectorAll('.wa-msg-anim');
 
-  // Reset and replay chat animation every 12 seconds
+  // Reset and replay chat animation every 10 seconds
   function replayChat() {
     msgs.forEach((msg) => {
       msg.style.animation = 'none';
@@ -409,15 +468,11 @@
     });
   }
 
-  setInterval(replayChat, 14000);
+  setInterval(replayChat, 10000);
 })();
 
 
-// ===== PRELOADER (optional smooth entry) =====
-window.addEventListener('load', () => {
-  document.body.style.opacity = '0';
-  document.body.style.transition = 'opacity 0.6s ease';
-  requestAnimationFrame(() => {
-    document.body.style.opacity = '1';
-  });
-});
+// Preloader removed — setting opacity to 0 after the page is
+// already rendered causes a visible flicker. CSS handles initial
+// body visibility natively.
+
