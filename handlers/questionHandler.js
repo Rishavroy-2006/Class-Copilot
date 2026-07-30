@@ -54,6 +54,9 @@ async function handleQuestion(sock, msg, text, chatId) {
 
   if (isRateLimited(chatId)) {
     console.log(`[questionHandler] Rate limited, skipping question in ${chatId}`);
+    await sock.sendMessage(chatId, { 
+      text: `🤖 *Class Copilot AI*\n\nWhoa there, slow down! Please wait a few seconds before asking another question. ⏳` 
+    }, { quoted: msg });
     return;
   }
 

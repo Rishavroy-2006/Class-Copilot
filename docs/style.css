@@ -79,6 +79,8 @@
 
 html {
   scroll-behavior: smooth;
+  overflow-x: hidden;
+  max-width: 100%;
   scroll-padding-top: 80px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -325,19 +327,19 @@ img {
 .hero {
   position: relative;
   z-index: 2;
+  width: 100%;
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 120px 24px 80px;
+  padding: 120px 40px 80px;
   gap: 60px;
-  max-width: var(--container-width);
-  margin: 0 auto;
 }
 
 .hero-content {
   flex: 1;
-  max-width: 600px;
+  max-width: 580px;
+  width: 100%;
 }
 
 .hero-badge {
@@ -369,7 +371,7 @@ img {
 
 .hero-title {
   font-family: var(--font-display);
-  font-size: clamp(40px, 5vw, 64px);
+  font-size: clamp(32px, 6vw, 64px);
   font-weight: 800;
   line-height: 1.1;
   letter-spacing: -2px;
@@ -463,6 +465,8 @@ img {
 .stat {
   display: flex;
   flex-direction: column;
+  align-items: center;
+  text-align: center;
 }
 
 .stat-number {
@@ -747,6 +751,20 @@ img {
   justify-content: center;
   gap: 48px;
   flex-wrap: wrap;
+}
+
+@media (max-width: 600px) {
+  .tech-logos {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px 32px;
+    justify-items: center;
+  }
+
+  /* Make the last item (Node.js) span both columns so it's centered */
+  .tech-logo:last-child {
+    grid-column: 1 / -1;
+  }
 }
 
 .tech-logo {
@@ -1474,21 +1492,34 @@ img {
 
 /* ===== RESPONSIVE ===== */
 @media (max-width: 900px) {
+  /* Override the 120px section padding for tablet/mobile */
+  :root {
+    --section-padding: 64px 0;
+  }
+
   .hero {
     flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
     text-align: center;
-    padding-top: 100px;
+    min-height: auto;
+    padding: 100px 24px 48px;
     gap: 40px;
+    width: 100%;
   }
 
   .hero-content {
     display: flex;
     flex-direction: column;
     align-items: center;
+    text-align: center;
+    width: 100%;
+    max-width: 100%;
   }
 
   .hero-subtitle {
     max-width: 100%;
+    text-align: center;
   }
 
   .hero-stats {
@@ -1496,11 +1527,20 @@ img {
   }
 
   .hero-visual {
-    max-width: 320px;
+    max-width: 280px;
+    width: 100%;
   }
 
   .features-grid {
     grid-template-columns: 1fr;
+  }
+
+  .section-header {
+    margin-bottom: 40px;
+  }
+
+  .phone-screen {
+    min-height: 360px;
   }
 
   .feature-card-large {
@@ -1570,14 +1610,42 @@ img {
 }
 
 @media (max-width: 600px) {
+  /* Tighter section padding on small phones */
+  :root {
+    --section-padding: 48px 0;
+  }
+
+  .hero {
+    padding: 88px 20px 40px;
+    gap: 32px;
+  }
+
   .hero-title {
-    font-size: 36px;
+    font-size: clamp(30px, 8vw, 40px);
     letter-spacing: -1px;
+  }
+
+  .hero-cta-group {
+    flex-direction: column;
+    width: 100%;
+    gap: 16px;
+  }
+
+  .hero-cta-group .btn {
+    width: 100%;
+    justify-content: center;
   }
 
   .hero-stats {
     flex-direction: column;
-    gap: 16px;
+    width: 100%;
+    gap: 20px;
+    align-items: center;
+  }
+
+  .stat {
+    align-items: center;
+    text-align: center;
   }
 
   .stat-divider {
@@ -1585,12 +1653,16 @@ img {
     height: 1px;
   }
 
+  .feature-card {
+    padding: 24px;
+  }
+
   .phone-mockup {
-    width: 260px;
+    width: 240px;
   }
 
   .phone-screen {
-    min-height: 400px;
+    min-height: 300px;
   }
 
   .footer-grid {
@@ -1615,6 +1687,27 @@ img {
   .cta-code code {
     font-size: 11px;
     word-break: break-all;
+  }
+}
+
+/* ===== 375px and below — very small phones ===== */
+@media (max-width: 375px) {
+  .hero-title {
+    font-size: 28px;
+    letter-spacing: -0.5px;
+  }
+
+  .hero-subtitle {
+    font-size: 15px;
+  }
+
+  .btn {
+    font-size: 14px;
+    padding: 12px 20px;
+  }
+
+  .stat-number {
+    font-size: 26px;
   }
 }
 
