@@ -157,9 +157,41 @@ async function callGroq70B(prompt) {
   return completion.choices[0]?.message?.content;
 }
 
+/**
+ * Summarize raw text into bullet points
+ */
+async function generateSummary(text) {
+  const prompt = `You are a helpful academic assistant. Please summarize the following text into concise, well-structured bullet points. Extract only the most important information and key takeaways.
+  
+Text to summarize:
+${text}
+
+Reply ONLY with the bullet points.`;
+
+  if (groq) {
+    try {
+      return await callGroq70B(prompt);
+    } catch (err) {
+      console.warn('[llmRouter] Groq summary failed, falling back to Gemini:', err.message);
+    }
+  }
+
+  // Fallback to Gemini
+  if (ai) {
+    try {
+      return await callGemini(prompt);
+    } catch (err) {
+      console.error('[llmRouter] Gemini summary failed:', err.message);
+    }
+  }
+
+  return 'Sorry, I am currently unable to generate a summary due to an API error.';
+}
+
 module.exports = {
   checkPromptGuard,
   fastExtractJson,
   generateAnswer,
-  embedText
+  embedText,
+  generateSummary
 };

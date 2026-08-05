@@ -11,6 +11,7 @@ const { classifyMessage } = require('./classifier');
 const { handleNote } = require('./handlers/noteHandler');
 const { handleDeadline, loadAndScheduleExistingDeadlines } = require('./handlers/deadlineHandler');
 const { handleQuestion } = require('./handlers/questionHandler');
+const { handleSummary } = require('./handlers/summaryHandler');
 
 async function startBridge() {
   // Saves your login session to ./auth so you don't have to re-scan the QR every time
@@ -71,6 +72,23 @@ async function startBridge() {
         msg.message.documentMessage?.caption ||
         msg.message.videoMessage?.caption ||
         '';
+
+      const contextInfo = msg.message.extendedTextMessage?.contextInfo;
+      const quotedMessage = contextInfo?.quotedMessage;
+      let quotedText = '';
+      if (quotedMessage) {
+        quotedText = 
+          quotedMessage.conversation || 
+          quotedMessage.extendedTextMessage?.text || 
+          quotedMessage.imageMessage?.caption || 
+          '';
+      }
+
+      if (text.toLowerCase().includes('summarize') && quotedText.length > 20) {
+        console.log(`[index] Routing to summary handler for user request: ${text}`);
+        await handleSummary(sock, msg, quotedText, chatId);
+        continue;
+      }
 
       // Catch errors per-message so one bad apple doesn't spoil the batch
       try {
