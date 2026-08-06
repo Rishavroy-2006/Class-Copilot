@@ -137,21 +137,30 @@ cp .env.example .env
 
 ## Core Features Reference
 
-### Message Processing
+### 1. Smart Message Processing & Routing
+- **Group-Only Guard**: The bot operates strictly in group chats (`@g.us`). It ignores DMs and broadcasts to preserve privacy.
+- **Hybrid Classifier**: Uses fast Regex rules to instantly classify messages (`NOTE`, `DEADLINE`, `QUESTION`, `NOISE`). Falls back to Groq (`llama-3.1-8b-instant`) for ambiguous text.
+- **Summary Command**: Reply to any long message with "summarize" and the bot will generate concise bullet points of the quoted text.
 
-| Handler | Description |
-|---|---|
-| `groupGuard` | Strictly ignores DMs and broadcasts; bot only listens inside group chats (`@g.us`) |
-| `classifyMessage` | Hybrid Regex + 8B LLM router that sorts noise from signal instantly |
-| `handleNote` | Detects PDFs, extracts raw text via `pdf-parse`, and stores vectors |
-| `handleDeadline` | Parses dates from chat and auto-schedules reminders |
+### 2. Note Management & Embeddings
+- **PDF & Document Parsing**: Detects attachments and extracts raw text using `pdf-parse`.
+- **Subject Extraction**: Automatically predicts the academic subject of a note using fast JSON extraction.
+- **Smart Deduplication**: Prevents spam by checking exact hash matches and fuzzy matching (Jaccard similarity > 85%) before saving.
+- **Vector Embeddings**: Uses `gemini-embedding-001` to generate 768-dimensional embeddings for semantic search and stores them in Supabase `pgvector`.
 
-### Security & Inference
+### 3. Automated Deadlines & Reminders
+- **Date Extraction**: Identifies and extracts due dates and descriptions from chat messages.
+- **Auto-Scheduling**: Schedules a 24-hour advance reminder via `node-schedule`. Reloads pending deadlines automatically upon system restart.
 
-| Handler | Description |
-|---|---|
-| `Troll Shield` | Native `llama-prompt-guard-2-86m` firewall to block jailbreaks |
-| `llmRouter` | Auto-failover logic ensuring 99.9% uptime across Groq and Gemini |
+### 4. RAG-Powered Q&A
+- **Vector Search**: Uses pgvector `match_notes` RPC to find semantically relevant notes.
+- **Recency Fallback**: If vector search is unavailable, retrieves the 5 most recent notes and deadlines.
+- **Contextual Generation**: Injects notes and deadlines into the LLM prompt with strict anti-hallucination rules (e.g., preserving raw table formats).
+
+### 5. Security & Inference Resilience
+- **Troll Shield**: Runs `meta-llama/llama-prompt-guard-2-86m` to detect and block malicious jailbreaks (blocks queries with score > 0.9).
+- **Spam Cooldown**: Implements a 10-second per-chat rate limit on answers to prevent API abuse.
+- **LLM Auto-Failover (`llmRouter`)**: Primary inference via Groq (`llama-3.3-70b-versatile`). Automatically routes to Gemini (`gemini-3.5-flash-lite`) if context exceeds 4000 characters or if Groq experiences downtime.
 
 ---
 
