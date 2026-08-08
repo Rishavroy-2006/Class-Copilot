@@ -23,7 +23,7 @@ function jaccardSimilarity(a, b) {
 
 async function extractSubjectFromText(text) {
   const prompt = `Analyze the following text.
-1. Determine the most likely academic subject (e.g., Mathematics, Physics, History).
+1. Determine the specific academic course or subject name (e.g., Data Structures, Operating Systems, Cryptography). Do not use broad category names like "Computer Science" if a specific course name is present.
 2. Determine if this text is a university exam question paper / past year paper (PYQ). Question papers usually have marks, instructions like "Answer any ten", module names, and numbered questions.
 
 Return only a JSON object in this format: {"subject": "Subject Name", "is_pyq": true, "year": "2023 or unknown"}
@@ -124,7 +124,7 @@ async function handleNote(msg, text, chatId, sock) {
 
     if (isPyq) {
       console.log(`[noteHandler] Auto-detected PYQ for ${subject}! Handing off to pyqHandler...`);
-      await sock.sendMessage(chatId, { text: `🤖 *Class Copilot AI*\n\nI auto-detected that this document is actually a Past Year Question paper for *${subject}*!\nMoving it to the PYQ Predictor...` }, { quoted: msg });
+      await sock.sendMessage(chatId, { text: `🤖 *Class Copilot AI*\n\nI auto-detected that this document is actually a Past Year Question paper for *${subject}*!\nMoving it to the PYQ Agent...` }, { quoted: msg });
       
       const { processPyqText } = require('./pyqHandler');
       await processPyqText(sock, chatId, subject, year, contentToSave);

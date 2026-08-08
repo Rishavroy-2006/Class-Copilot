@@ -59,8 +59,8 @@ function ruleBasedClassify(text, msg) {
     return 'NOISE';
   }
 
-  // 0. Explicit prediction commands
-  if (/^(pyq|\/predict)/i.test(trimmed)) {
+  // 0. Explicit prediction commands and queries
+  if (/^(\/predict|pyq)/i.test(trimmed) || /\b(predict|probable\s*questions|important\s*questions|guess\s*paper)\b/i.test(trimmed)) {
     return 'PYQ';
   }
 

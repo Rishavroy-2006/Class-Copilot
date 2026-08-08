@@ -108,7 +108,24 @@ async function startBridge() {
         } else if (category === 'DEADLINE') {
           await handleDeadline(sock, msg, text, chatId);
         } else if (category === 'PYQ') {
-          await handlePyq(sock, msg, text, chatId);
+          const botNumber = sock.user.id.split(':')[0].split('@')[0];
+          const botJid = `${botNumber}@s.whatsapp.net`;
+          const botLid = sock.user.lid ? sock.user.lid.split(':')[0].split('@')[0] : null;
+          
+          const mentionedJids = msg.message?.extendedTextMessage?.contextInfo?.mentionedJid || [];
+          const isMentioned =
+            mentionedJids.includes(botJid) ||
+            (botLid && mentionedJids.some(jid => jid.split('@')[0] === botLid)) ||
+            text.includes(`@${botNumber}`);
+            
+          const hasDoc = hasMediaAttachment(msg);
+          const isExplicitCommand = /^\/?(predict|pyq)/i.test(text.trim());
+          
+          if (!isGroup || hasDoc || isExplicitCommand || isMentioned) {
+            await handlePyq(sock, msg, text, chatId);
+          } else {
+            console.log('[index] Skipped group PYQ request because bot was not @mentioned.');
+          }
         } else if (category === 'QUESTION') {
           // Normalize bot's JID safely (strip any existing :port or @domain first)
           const botNumber = sock.user.id.split(':')[0].split('@')[0];
