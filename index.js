@@ -118,7 +118,7 @@ async function startBridge() {
             (botLid && mentionedJids.some(jid => jid.split('@')[0] === botLid)) ||
             text.includes(`@${botNumber}`);
             
-          const hasDoc = hasMediaAttachment(msg);
+          const hasDoc = !!(msg.message?.documentMessage || msg.message?.documentWithCaptionMessage?.message?.documentMessage);
           const isExplicitCommand = /^\/?(predict|pyq)/i.test(text.trim());
           
           if (!isGroup || hasDoc || isExplicitCommand || isMentioned) {
