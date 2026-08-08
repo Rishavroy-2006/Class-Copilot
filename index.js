@@ -12,6 +12,7 @@ const { handleNote } = require('./handlers/noteHandler');
 const { handleDeadline, loadAndScheduleExistingDeadlines } = require('./handlers/deadlineHandler');
 const { handleQuestion } = require('./handlers/questionHandler');
 const { handleSummary } = require('./handlers/summaryHandler');
+const { handlePyq } = require('./handlers/pyqHandler');
 
 async function startBridge() {
   // Saves your login session to ./auth so you don't have to re-scan the QR every time
@@ -103,9 +104,11 @@ async function startBridge() {
 
         // 👉 Next step: route based on category
         if (category === 'NOTE') {
-          await handleNote(msg, text, chatId);
+          await handleNote(msg, text, chatId, sock);
         } else if (category === 'DEADLINE') {
           await handleDeadline(sock, msg, text, chatId);
+        } else if (category === 'PYQ') {
+          await handlePyq(sock, msg, text, chatId);
         } else if (category === 'QUESTION') {
           // Normalize bot's JID safely (strip any existing :port or @domain first)
           const botNumber = sock.user.id.split(':')[0].split('@')[0];

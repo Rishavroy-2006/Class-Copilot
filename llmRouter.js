@@ -157,6 +157,57 @@ async function callGroq70B(prompt) {
   return completion.choices[0]?.message?.content;
 }
 
+async function callGroq70BJson(prompt) {
+  const completion = await groq.chat.completions.create({
+    model: 'llama-3.3-70b-versatile',
+    messages: [{ role: 'user', content: prompt }],
+    temperature: 0.1,
+    max_tokens: 1000,
+    response_format: { type: "json_object" }
+  });
+  return completion.choices[0]?.message?.content;
+}
+
+/**
+ * Predict PYQ Json
+ * Mirrors the generateAnswer failover architecture for robust JSON extraction.
+ */
+async function generatePredictionJson(prompt, contextLength = 0) {
+  const preferGemini = contextLength > 4000 || !groq;
+
+  if (preferGemini && ai) {
+    console.log(`[llmRouter] Routing PYQ Prediction to Gemini (Context Length: ${contextLength})`);
+    try {
+      const response = await callGemini(prompt, { responseMimeType: 'application/json' });
+      return JSON.parse(response.text);
+    } catch (err) {
+      console.warn('[llmRouter] Gemini prediction failed entirely, attempting failover to Groq 70B...', err.message);
+      if (groq) {
+        const text = await callGroq70BJson(prompt);
+        return JSON.parse(text);
+      }
+      throw err;
+    }
+  }
+
+  if (groq) {
+    console.log(`[llmRouter] Routing PYQ Prediction to Groq 70B (Context Length: ${contextLength})`);
+    try {
+      const text = await callGroq70BJson(prompt);
+      return JSON.parse(text);
+    } catch (err) {
+      console.warn('[llmRouter] Groq 70B prediction failed/rate-limited, attempting failover to Gemini...', err.message);
+      if (ai) {
+        const response = await callGemini(prompt, { responseMimeType: 'application/json' });
+        return JSON.parse(response.text);
+      }
+      throw err;
+    }
+  }
+
+  throw new Error('No LLM provider available.');
+}
+
 /**
  * Summarize raw text into bullet points
  */
@@ -193,5 +244,6 @@ module.exports = {
   fastExtractJson,
   generateAnswer,
   embedText,
-  generateSummary
+  generateSummary,
+  generatePredictionJson
 };

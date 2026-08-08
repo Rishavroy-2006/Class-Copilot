@@ -214,10 +214,10 @@ What happens:
 - RAG Q&A using Supabase pgvector
 - Auto-deadline scheduling 
 - Troll Shield guardrails
+- PYQ Predictor via concatenated RAG
 - 3D Scroll-Animated Landing Page (`/docs`)
 
 **Next — Visual & Audio Expansion**
-- **PYQ Predictor:** Upload past papers and let the AI map out high-probability exam topics.
 - **Voice Note Transcription:** Whisper API integration so the bot can summarize 4-minute voice rambles.
 - **Web Dashboard:** A clean Next.js frontend to view all merged notes outside of WhatsApp.
 

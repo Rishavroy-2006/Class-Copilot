@@ -12,7 +12,7 @@
 require('dotenv').config({ quiet: true });
 const Groq = require('groq-sdk');
 
-const CATEGORIES = ['NOTE', 'DEADLINE', 'QUESTION', 'NOISE'];
+const CATEGORIES = ['NOTE', 'DEADLINE', 'QUESTION', 'NOISE', 'PYQ'];
 
 // Only created if a key is present — lets the rule-based layer work standalone
 const groq = process.env.GROQ_API_KEY
@@ -57,6 +57,11 @@ function ruleBasedClassify(text, msg) {
   if (!trimmed) {
     if (hasMediaAttachment(msg)) return 'NOTE';
     return 'NOISE';
+  }
+
+  // 0. Explicit prediction commands
+  if (/^(pyq|\/predict)/i.test(trimmed)) {
+    return 'PYQ';
   }
 
   const isDeadline = DEADLINE_KEYWORDS.test(trimmed);

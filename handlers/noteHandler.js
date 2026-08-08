@@ -22,24 +22,33 @@ function jaccardSimilarity(a, b) {
 }
 
 async function extractSubjectFromText(text) {
-  const prompt = `Analyze the following text and determine the most likely academic subject (e.g., Mathematics, Physics, History, Computer Science).
-Return only a JSON object in this format: {"subject": "Subject Name"}
+  const prompt = `Analyze the following text.
+1. Determine the most likely academic subject (e.g., Mathematics, Physics, History).
+2. Determine if this text is a university exam question paper / past year paper (PYQ). Question papers usually have marks, instructions like "Answer any ten", module names, and numbered questions.
+
+Return only a JSON object in this format: {"subject": "Subject Name", "is_pyq": true, "year": "2023 or unknown"}
 
 Text snippet:
 ${text.substring(0, 1000)}...`;
 
   try {
     const result = await fastExtractJson(prompt);
-    return result.subject || 'General';
+    return {
+      subject: result.subject || 'General',
+      is_pyq: !!result.is_pyq,
+      year: result.year || 'unknown'
+    };
   } catch (error) {
     console.error('[noteHandler] Failed to extract subject:', error);
-    return 'General';
+    return { subject: 'General', is_pyq: false, year: 'unknown' };
   }
 }
 
-async function handleNote(msg, text, chatId) {
+async function handleNote(msg, text, chatId, sock) {
   let contentToSave = text;
   let subject = 'General';
+  let isPyq = false;
+  let year = 'unknown';
 
   try {
     const docMessage = msg.message?.documentMessage;
@@ -107,7 +116,19 @@ async function handleNote(msg, text, chatId) {
     }
 
     if (contentToSave.length > 20) {
-       subject = await extractSubjectFromText(contentToSave);
+       const info = await extractSubjectFromText(contentToSave);
+       subject = info.subject;
+       isPyq = info.is_pyq;
+       year = info.year;
+    }
+
+    if (isPyq) {
+      console.log(`[noteHandler] Auto-detected PYQ for ${subject}! Handing off to pyqHandler...`);
+      await sock.sendMessage(chatId, { text: `🤖 *Class Copilot AI*\n\nI auto-detected that this document is actually a Past Year Question paper for *${subject}*!\nMoving it to the PYQ Predictor...` }, { quoted: msg });
+      
+      const { processPyqText } = require('./pyqHandler');
+      await processPyqText(sock, chatId, subject, year, contentToSave);
+      return;
     }
 
     // Embed the note for vector search (null if unavailable)
