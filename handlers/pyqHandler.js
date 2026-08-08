@@ -4,6 +4,8 @@ const supabase = require('../supabaseClient');
 const { fastExtractJson, generatePredictionJson } = require('../llmRouter');
 
 async function handlePyq(sock, msg, text, chatId) {
+  const docMessage = msg.message?.documentMessage || msg.message?.documentWithCaptionMessage?.message?.documentMessage;
+
   // SCENARIO 1: Uploading a PYQ document explicitly
   if (docMessage) {
     if (docMessage.mimetype !== 'application/pdf') {
