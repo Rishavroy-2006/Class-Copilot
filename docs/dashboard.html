@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Class Copilot — Live Dashboard Simulation</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Supabase JS CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- Tailwind Custom Configuration -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'bg-primary': '#050A0E',
+            'bg-secondary': '#0A1118',
+            'bg-tertiary': '#101820',
+            'wa-green': '#25D366',
+            'wa-green-dark': '#128C7E',
+            'text-primary': '#F0F6FC',
+            'text-secondary': '#8B9EB0',
+            'text-muted': '#56687A',
+            'border-subtle': 'rgba(255, 255, 255, 0.06)',
+            'border-hover': 'rgba(37, 211, 102, 0.3)',
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            display: ['Space Grotesk', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      background-color: #050A0E;
+      color: #F0F6FC;
+    }
+    .glass-panel {
+      background: rgba(16, 24, 32, 0.6);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    .glow-green {
+      box-shadow: 0 0 35px rgba(37, 211, 102, 0.08);
+    }
+    .glow-orange {
+      box-shadow: 0 0 35px rgba(249, 115, 22, 0.08);
+    }
+    .glow-red {
+      box-shadow: 0 0 35px rgba(239, 68, 68, 0.08);
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 0.6; }
+      50% { opacity: 0.25; }
+    }
+    .animate-pulse-custom {
+      animation: pulse 1.8s infinite ease-in-out;
+    }
+  </style>
+</head>
+<body className="min-h-screen flex flex-col font-sans">
+
+  <!-- Header -->
+  <header class="sticky top-0 z-50 w-full border-b border-border-subtle bg-[#050A0E]/85 backdrop-blur-md">
+    <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+      <a href="index.html" class="flex items-center gap-2">
+        <div class="w-8 h-8 flex items-center justify-center rounded-lg bg-gradient-to-br from-wa-green to-wa-green-dark">
+          <svg width="18" height="18" viewBox="0 0 32 32" fill="none">
+            <path d="M16 6C10.48 6 6 10.18 6 15.31C6 17.97 7.23 20.37 9.21 22.03L8.1 25.5L11.82 24.3C13.11 24.87 14.52 25.18 16 25.18C21.52 25.18 26 21 26 15.87C26 10.74 21.52 6 16 6Z" fill="white" />
+          </svg>
+        </div>
+        <span class="font-display font-bold text-lg tracking-tight">
+          Class<span class="text-wa-green">Copilot</span>
+        </span>
+      </a>
+
+      <div class="flex items-center gap-3">
+        <!-- Data Source Status Indicator -->
+        <div id="demo-indicator" class="flex items-center gap-1.5 px-3 py-1.5 bg-orange-500/10 border border-orange-500/20 text-orange-400 rounded-full text-[11px] font-semibold tracking-wide shadow-[0_0_15px_rgba(249,115,22,0.05)]">
+          <span class="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse"></span>
+          <span>Demo Mode</span>
+        </div>
+        
+        <button id="toggle-datasource" onclick="toggleDataSource()" class="text-xs font-semibold text-text-primary hover:text-wa-green border border-border-subtle hover:border-wa-green/30 px-3.5 py-1.5 rounded-full transition-all duration-300 bg-white/2">
+          Connect Live DB
+        </button>
+
+        <a href="index.html" class="text-xs font-semibold text-text-secondary hover:text-text-primary border border-border-subtle hover:border-white/10 px-3.5 py-1.5 rounded-full transition-all duration-300">
+          ← Back
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Tabs Navigation -->
+  <div class="w-full bg-bg-secondary/40 border-b border-border-subtle py-2">
+    <div class="max-w-6xl mx-auto px-4">
+      <nav class="flex space-x-1" aria-label="Tabs">
+        <button id="tab-notes" onclick="switchTab('notes')" class="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 bg-wa-green/10 text-wa-green border border-wa-green/20 shadow-[0_0_20px_rgba(37,211,102,0.06)]">
+          <span>📚</span>
+          <span>Class Notes</span>
+        </button>
+        <button id="tab-deadlines" onclick="switchTab('deadlines')" class="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 text-text-secondary hover:text-text-primary hover:bg-white/5 border border-transparent">
+          <span>⏰</span>
+          <span>Deadlines</span>
+        </button>
+        <button id="tab-predictions" onclick="switchTab('predictions')" class="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 text-text-secondary hover:text-text-primary hover:bg-white/5 border border-transparent">
+          <span>🔮</span>
+          <span>Exam Predictions</span>
+        </button>
+      </nav>
+    </div>
+  </div>
+
+  <!-- Main Content Area -->
+  <main class="flex-grow max-w-6xl w-full mx-auto px-4 py-8 relative">
+    
+    <!-- Floating background decorative hints -->
+    <div class="absolute inset-0 -z-10 overflow-hidden pointer-events-none opacity-5">
+      <div class="absolute top-10 left-10 text-4xl animate-pulse">📚</div>
+      <div class="absolute bottom-20 right-20 text-4xl animate-pulse" style="animation-delay: 1s;">🔮</div>
+    </div>
+
+    <!-- Notes View -->
+    <div id="view-notes" class="view-content space-y-8">
+      <div>
+        <h1 class="font-display font-extrabold text-3xl tracking-tight mb-2">Class <span class="text-wa-green">Notes</span></h1>
+        <p class="text-sm text-text-secondary">Autonomously extracted & indexed lecture slides, materials, and notes.</p>
+      </div>
+
+      <!-- Notes Content Container -->
+      <div id="notes-container" class="space-y-6">
+        <!-- Will be loaded dynamically -->
+      </div>
+    </div>
+
+    <!-- Deadlines View -->
+    <div id="view-deadlines" class="view-content space-y-8 hidden">
+      <div>
+        <h1 class="font-display font-extrabold text-3xl tracking-tight mb-2">Class <span class="text-wa-green">Deadlines</span></h1>
+        <p class="text-sm text-text-secondary">Live academic schedule parsed directly from group messages and files.</p>
+      </div>
+
+      <!-- Deadlines Content Container -->
+      <div id="deadlines-container" class="space-y-4">
+        <!-- Will be loaded dynamically -->
+      </div>
+    </div>
+
+    <!-- Predictions View -->
+    <div id="view-predictions" class="view-content space-y-8 hidden">
+      <div>
+        <h1 class="font-display font-extrabold text-3xl tracking-tight mb-2">Exam <span class="text-wa-green">Predictions</span></h1>
+        <p class="text-sm text-text-secondary">AI pattern analysis of recurring exam topics extracted from past papers.</p>
+      </div>
+
+      <!-- Predictions Content Container -->
+      <div id="predictions-container" class="space-y-8">
+        <!-- Will be loaded dynamically -->
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="w-full py-6 border-t border-border-subtle bg-bg-primary text-center text-xs text-text-muted mt-12">
+    <div class="max-w-6xl mx-auto px-4">
+      <p>© 2026 Class Copilot. Simulated Live Hackathon Dashboard.</p>
+    </div>
+  </footer>
+
+  <!-- Simulation JS Logic -->
+  <script>
+    // Supabase config
+    const supabaseUrl = 'https://gzdlmcestfhlvdipklmp.supabase.co';
+    const supabaseKey = 'sb_publishable_YlvhAmCjsQUfsD7042cCvQ_GxrKj1eb';
+    const HARDCODED_CHAT_ID = '120363419514236110@g.us';
+
+    let supabaseClient = null;
+
+    try {
+      supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+    } catch (e) {
+      console.error("Failed to initialize Supabase client:", e);
+    }
+
+    // Toggle subjects accordion state
+    const openSubjects = {};
+
+    function toggleSubject(subject) {
+      openSubjects[subject] = !openSubjects[subject];
+      renderNotes();
+    }
+
+    // Switch view tabs
+    function switchTab(tabName) {
+      // Manage tab buttons
+      ['notes', 'deadlines', 'predictions'].forEach(name => {
+        const btn = document.getElementById(`tab-${name}`);
+        const view = document.getElementById(`view-${name}`);
+        
+        if (name === tabName) {
+          btn.className = "flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 bg-wa-green/10 text-wa-green border border-wa-green/20 shadow-[0_0_20px_rgba(37,211,102,0.06)]";
+          view.classList.remove('hidden');
+        } else {
+          btn.className = "flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 text-text-secondary hover:text-text-primary hover:bg-white/5 border border-transparent";
+          view.classList.add('hidden');
+        }
+      });
+    }
+
+    // Loading Skeletons
+    function showSkeleton(containerId, count = 2) {
+      const container = document.getElementById(containerId);
+      let skeletonHtml = '';
+      
+      if (containerId === 'notes-container') {
+        for (let i = 0; i < count; i++) {
+          skeletonHtml += `
+            <div class="glass-panel p-6 space-y-4 rounded-2xl animate-pulse-custom">
+              <div class="flex items-center justify-between border-b border-border-subtle pb-3">
+                <div class="h-6 w-36 bg-white/10 rounded"></div>
+                <div class="h-4 w-16 bg-white/10 rounded"></div>
+              </div>
+              <div class="space-y-2">
+                <div class="h-4 w-full bg-white/5 rounded"></div>
+                <div class="h-4 w-5/6 bg-white/5 rounded"></div>
+              </div>
+            </div>`;
+        }
+      } else if (containerId === 'deadlines-container') {
+        for (let i = 0; i < count; i++) {
+          skeletonHtml += `
+            <div class="glass-panel p-5 flex items-center justify-between rounded-xl animate-pulse-custom">
+              <div class="flex items-center gap-4">
+                <div class="w-10 h-10 rounded-lg bg-white/10"></div>
+                <div class="space-y-2">
+                  <div class="h-5 w-48 bg-white/10 rounded"></div>
+                  <div class="h-3.5 w-32 bg-white/5 rounded"></div>
+                </div>
+              </div>
+              <div class="h-6 w-24 bg-white/10 rounded-full"></div>
+            </div>`;
+        }
+      } else { // predictions
+        for (let i = 0; i < count; i++) {
+          skeletonHtml += `
+            <div class="glass-panel p-6 space-y-4 rounded-2xl animate-pulse-custom">
+              <div class="h-6 w-52 bg-white/10 rounded"></div>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="h-32 bg-white/5 rounded-xl"></div>
+                <div class="h-32 bg-white/5 rounded-xl"></div>
+              </div>
+            </div>`;
+        }
+      }
+      container.innerHTML = skeletonHtml;
+    }
+
+    // Error Panels
+    function showError(containerId, errMessage) {
+      const container = document.getElementById(containerId);
+      container.innerHTML = `
+        <div class="glass-panel border-red-500/20 p-8 text-center max-w-lg mx-auto glow-red mt-12 rounded-2xl">
+          <div class="text-4xl mb-4">⚠️</div>
+          <h3 class="font-display font-bold text-lg text-red-400 mb-2">Connection Error</h3>
+          <p class="text-sm text-text-secondary leading-relaxed mb-6">${errMessage}</p>
+          <button onclick="loadAllData()" class="px-4 py-2 bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 hover:border-red-500/50 rounded-lg text-xs font-semibold text-red-400 transition-all duration-300">
+            Try Reconnecting
+          </button>
+        </div>`;
+    }
+
+    // Empty States
+    function showEmpty(containerId, type) {
+      const container = document.getElementById(containerId);
+      let details = '';
+      
+      if (type === 'notes') {
+        details = {
+          icon: '📚',
+          title: 'No Notes Yet',
+          desc: "Waiting on your class's first note... Share a syllabus, study guide, or slide PDF in the WhatsApp group to get started.",
+          tag: 'Listening in the WhatsApp Group'
+        };
+      } else if (type === 'deadlines') {
+        details = {
+          icon: '⏰',
+          title: 'No Deadlines Yet',
+          desc: 'Enjoy the downtime! The board will populate automatically as soon as a student mentions an assignment, quiz, or exam deadline in the WhatsApp group.',
+          tag: 'Listening for Deadlines'
+        };
+      } else {
+        details = {
+          icon: '🔮',
+          title: 'No Predictions Yet',
+          desc: 'To generate exam predictions, share at least 2 past exam papers (PDFs) for the same subject in the WhatsApp group, then tag the bot with: "predict [subject]".',
+          tag: 'Ready for Exam Papers'
+        };
+      }
+
+      container.innerHTML = `
+        <div class="glass-panel p-10 text-center max-w-lg mx-auto glow-green mt-12 rounded-2xl">
+          <div class="text-5xl mb-6">${details.icon}</div>
+          <h3 class="font-display font-bold text-xl text-text-primary mb-3">${details.title}</h3>
+          <p class="text-sm text-text-secondary leading-relaxed mb-6">${details.desc}</p>
+          <div class="inline-flex items-center gap-2 px-4 py-2 bg-wa-green/10 border border-wa-green/20 rounded-full text-xs font-medium text-wa-green">
+            <span class="w-2 h-2 rounded-full bg-wa-green animate-ping"></span>
+            ${details.tag}
+          </div>
+        </div>`;
+    }
+
+    // High-fidelity mock datasets for simulation
+    const MOCK_NOTES = [
+      {
+        id: "n1",
+        subject: "Data Structures & Algorithms",
+        content: "Binary Search Trees (BST) Properties:\n- A BST is a binary tree structure where each node holds a key greater than all keys in its left subtree and less than all keys in its right subtree.\n- Average time complexity for Search, Insert, and Delete is O(log n) when the tree is reasonably balanced.\n- Worst-case time complexity is O(n) when the tree becomes skewed (degenerate tree resembling a linked list).\n- Balance maintenance: Self-balancing BSTs like AVL trees and Red-Black trees perform automatic rotations to maintain O(log n) depth.",
+        created_at: new Date(Date.now() - 3600000 * 24).toISOString() // 1 day ago
+      },
+      {
+        id: "n2",
+        subject: "Data Structures & Algorithms",
+        content: "Graph Representations & Search Algorithms:\n1. Adjacency Matrix: A 2D array of size V x V. Space complexity is O(V^2). Best suited for dense graphs where E is close to V^2.\n2. Adjacency List: An array of lists representing adjacent vertices. Space complexity is O(V + E). Preferred for sparse graphs.\n- BFS (Breadth-First Search) uses a FIFO queue. Time complexity: O(V + E). Excellent for finding the shortest path in unweighted graphs.\n- DFS (Depth-First Search) uses a LIFO stack (or recursion). Time complexity: O(V + E). Useful for topological sorting, detecting cycles, and pathfinding.",
+        created_at: new Date(Date.now() - 3600000 * 48).toISOString() // 2 days ago
+      },
+      {
+        id: "n3",
+        subject: "Database Management Systems",
+        content: "Database Normalization Rules (1NF to BCNF):\n- 1NF (First Normal Form): All columns must contain only atomic (indivisible) values. No repeating groups or arrays.\n- 2NF (Second Normal Form): Must be in 1NF, and all non-key attributes must be fully functionally dependent on the primary key (no partial dependencies).\n- 3NF (Third Normal Form): Must be in 2NF, and there must be no transitive dependencies (non-key columns depending on other non-key columns).\n- BCNF (Boyce-Codd Normal Form): A stronger version of 3NF where for every functional dependency X -> Y, X must be a super key.",
+        created_at: new Date(Date.now() - 3600000 * 72).toISOString() // 3 days ago
+      }
+    ];
+
+    const MOCK_DEADLINES = [
+      {
+        id: "d1",
+        description: "DSA Programming Assignment 3 (Graph Algorithms implementation)",
+        due_date: new Date(Date.now() + 3600000 * 18).toISOString(), // 18 hours from now
+        reminder_sent: true,
+        created_at: new Date(Date.now() - 3600000 * 24).toISOString()
+      },
+      {
+        id: "d2",
+        description: "DBMS Quiz 2: Relational Algebra & SQL Joins",
+        due_date: new Date(Date.now() + 3600000 * 24 * 4).toISOString(), // 4 days from now
+        reminder_sent: false,
+        created_at: new Date(Date.now() - 3600000 * 12).toISOString()
+      },
+      {
+        id: "d3",
+        description: "System Design Midterm Project Presentation",
+        due_date: new Date(Date.now() + 3600000 * 24 * 12).toISOString(), // 12 days from now
+        reminder_sent: false,
+        created_at: new Date(Date.now() - 3600000 * 48).toISOString()
+      }
+    ];
+
+    const MOCK_PREDICTIONS = [
+      {
+        id: "p1",
+        subject: "Data Structures & Algorithms",
+        papers_analyzed: 4,
+        predicted_topics: [
+          {
+            topic: "AVL Tree Rotations",
+            appears_in_papers: 4,
+            confidence: "High",
+            example_question: "Given a sequence of integers: [45, 20, 10, 30, 50, 60], construct an AVL tree step-by-step and identify the types of rotations performed (LL, RR, LR, RL) to keep the tree balanced."
+          },
+          {
+            topic: "Dijkstra's Algorithm Implementation",
+            appears_in_papers: 3,
+            confidence: "High",
+            example_question: "Explain Dijkstra's shortest path algorithm using a weighted graph. Discuss its time complexity when implemented using a binary heap versus a Fibonacci heap."
+          },
+          {
+            topic: "Amortized Analysis of Dynamic Arrays",
+            appears_in_papers: 2,
+            confidence: "Medium",
+            example_question: "Describe the aggregate method, accounting method, and potential method for amortized analysis. Use these methods to prove that doubling a dynamic array takes O(1) amortized time."
+          }
+        ],
+        created_at: new Date().toISOString()
+      },
+      {
+        id: "p2",
+        subject: "Database Management Systems",
+        papers_analyzed: 3,
+        predicted_topics: [
+          {
+            topic: "Transaction Isolation Levels & Anomalies",
+            appears_in_papers: 3,
+            confidence: "High",
+            example_question: "Define Dirty Read, Non-Repeatable Read, and Phantom Read anomalies. Explain how isolation levels (Read Uncommitted, Read Committed, Repeatable Read, Serializable) prevent these anomalies."
+          },
+          {
+            topic: "B+ Tree Indexing",
+            appears_in_papers: 2,
+            confidence: "Medium",
+            example_question: "Explain the structure of a B+ Tree index. Show how a lookup, range query, and insertion operation are executed, and compare B+ Trees with Hash indexes."
+          }
+        ],
+        created_at: new Date().toISOString()
+      }
+    ];
+
+    // Data Store & Mode
+    let isDemoMode = true;
+    let notesData = [];
+    let deadlinesData = [];
+    let predictionsData = [];
+
+    // Toggle Mode
+    function toggleDataSource() {
+      isDemoMode = !isDemoMode;
+      updateDataSourceUI();
+      loadAllData();
+    }
+
+    function useDemoMode() {
+      isDemoMode = true;
+      updateDataSourceUI();
+      loadAllData();
+    }
+
+    function updateDataSourceUI() {
+      const indicator = document.getElementById('demo-indicator');
+      const toggleBtn = document.getElementById('toggle-datasource');
+
+      if (isDemoMode) {
+        indicator.className = "flex items-center gap-1.5 px-3 py-1.5 bg-orange-500/10 border border-orange-500/20 text-orange-400 rounded-full text-[11px] font-semibold tracking-wide shadow-[0_0_15px_rgba(249,115,22,0.05)]";
+        indicator.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse"></span><span>Demo Mode</span>`;
+        toggleBtn.innerText = "Connect Live DB";
+        toggleBtn.className = "text-xs font-semibold text-text-primary hover:text-wa-green border border-border-subtle hover:border-wa-green/30 px-3.5 py-1.5 rounded-full transition-all duration-300 bg-white/2";
+      } else {
+        indicator.className = "flex items-center gap-1.5 px-3 py-1.5 bg-wa-green/10 border border-wa-green/20 text-wa-green rounded-full text-[11px] font-semibold tracking-wide shadow-[0_0_15px_rgba(37,211,102,0.05)]";
+        indicator.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-wa-green animate-ping"></span><span>Live Database</span>`;
+        toggleBtn.innerText = "Use Demo Mode";
+        toggleBtn.className = "text-xs font-semibold text-text-primary hover:text-orange-400 border border-border-subtle hover:border-orange-500/30 px-3.5 py-1.5 rounded-full transition-all duration-300 bg-white/2";
+      }
+    }
+
+    // Load All Data
+    async function loadAllData() {
+      showSkeleton('notes-container');
+      showSkeleton('deadlines-container');
+      showSkeleton('predictions-container');
+
+      if (isDemoMode) {
+        // Load high-fidelity mock data instantly
+        setTimeout(() => {
+          notesData = MOCK_NOTES;
+          deadlinesData = MOCK_DEADLINES;
+          predictionsData = MOCK_PREDICTIONS;
+          
+          // Initialize accordion states
+          notesData.forEach(note => {
+            if (openSubjects[note.subject] === undefined) {
+              openSubjects[note.subject] = true;
+            }
+          });
+
+          renderNotes();
+          renderDeadlines();
+          renderPredictions();
+        }, 600); // realistic load animation feel
+        return;
+      }
+
+      // Live DB Mode
+      if (!supabaseClient) {
+        showError('notes-container', 'Supabase Client failed to initialize. Check console.');
+        showError('deadlines-container', 'Supabase Client failed to initialize. Check console.');
+        showError('predictions-container', 'Supabase Client failed to initialize. Check console.');
+        return;
+      }
+
+      // Fetch Notes
+      try {
+        const { data, error } = await supabaseClient
+          .from('notes')
+          .select('id, subject, content, created_at')
+          .eq('chat_id', HARDCODED_CHAT_ID)
+          .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        notesData = data || [];
+        
+        notesData.forEach(note => {
+          if (openSubjects[note.subject] === undefined) {
+            openSubjects[note.subject] = true;
+          }
+        });
+
+        if (notesData.length === 0) {
+          showEmpty('notes-container', 'notes');
+        } else {
+          renderNotes();
+        }
+      } catch (err) {
+        showErrorWithDemoOption('notes-container', err.message);
+      }
+
+      // Fetch Deadlines
+      try {
+        const { data, error } = await supabaseClient
+          .from('deadlines')
+          .select('id, due_date, description, original_text, reminder_sent, created_at')
+          .eq('chat_id', HARDCODED_CHAT_ID)
+          .order('due_date', { ascending: true });
+
+        if (error) throw error;
+        deadlinesData = data || [];
+
+        if (deadlinesData.length === 0) {
+          showEmpty('deadlines-container', 'deadlines');
+        } else {
+          renderDeadlines();
+        }
+      } catch (err) {
+        showErrorWithDemoOption('deadlines-container', err.message);
+      }
+
+      // Fetch Predictions
+      try {
+        const { data, error } = await supabaseClient
+          .from('predictions')
+          .select('id, subject, predicted_topics, papers_analyzed, created_at')
+          .eq('chat_id', HARDCODED_CHAT_ID)
+          .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        predictionsData = data || [];
+
+        if (predictionsData.length === 0) {
+          showEmpty('predictions-container', 'predictions');
+        } else {
+          renderPredictions();
+        }
+      } catch (err) {
+        showErrorWithDemoOption('predictions-container', err.message);
+      }
+    }
+
+    // Specialized error function that offers Demo Mode fallback
+    function showErrorWithDemoOption(containerId, errMessage) {
+      const container = document.getElementById(containerId);
+      container.innerHTML = `
+        <div class="glass-panel border-red-500/20 p-8 text-center max-w-lg mx-auto glow-red mt-12 rounded-2xl">
+          <div class="text-4xl mb-4">⚠️</div>
+          <h3 class="font-display font-bold text-lg text-red-400 mb-2">Live Connection Error</h3>
+          <p class="text-sm text-text-secondary leading-relaxed mb-6">${errMessage}</p>
+          <div class="flex items-center justify-center gap-3">
+            <button onclick="loadAllData()" class="px-4 py-2 bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 hover:border-red-500/50 rounded-lg text-xs font-semibold text-red-400 transition-all duration-300">
+              Retry DB Connect
+            </button>
+            <button onclick="useDemoMode()" class="px-4 py-2 bg-wa-green/10 hover:bg-wa-green/20 border border-wa-green/30 hover:border-wa-green/50 rounded-lg text-xs font-semibold text-wa-green transition-all duration-300">
+              Use Simulated Data
+            </button>
+          </div>
+        </div>`;
+    }
+
+    // Render Notes View
+    function renderNotes() {
+      const container = document.getElementById('notes-container');
+      
+      // Group notes by subject
+      const grouped = {};
+      notesData.forEach(note => {
+        const sub = note.subject || 'General';
+        if (!grouped[sub]) grouped[sub] = [];
+        grouped[sub].push(note);
+      });
+
+      let html = '';
+      Object.entries(grouped).forEach(([subject, subjectNotes]) => {
+        const isOpen = openSubjects[subject] !== false;
+        
+        let notesListHtml = '';
+        if (isOpen) {
+          notesListHtml = `<div class="p-6 space-y-6 bg-[#0A1118]/10">`;
+          subjectNotes.forEach(note => {
+            const shortContent = note.content.length > 500 ? note.content.substring(0, 500) + '...' : note.content;
+            const hasMore = note.content.length > 500;
+            const dateFormatted = new Date(note.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
+            notesListHtml += `
+              <div class="glass-panel p-5 bg-white/1.5 border border-border-subtle/50 rounded-xl hover:border-wa-green/25 transition-all duration-300 relative">
+                <div class="flex items-center justify-between mb-3.5 pb-2.5 border-b border-border-subtle/40">
+                  <span class="text-xs text-text-muted">Added ${dateFormatted}</span>
+                  <span class="text-xs font-semibold px-2.5 py-1 rounded bg-wa-green/8 text-wa-green border border-wa-green/10">PDF Note</span>
+                </div>
+                <p class="text-sm text-text-secondary leading-relaxed whitespace-pre-wrap">${shortContent}</p>
+                ${hasMore ? `
+                  <div class="mt-4 pt-3 border-t border-border-subtle/30 flex justify-end">
+                    <button onclick="alert(\`${note.content.replace(/`/g, '\\`').replace(/\$/g, '\\$')}\`)" class="text-xs font-bold text-wa-green hover:underline flex items-center gap-1 cursor-pointer">
+                      Read Full Note ↗
+                    </button>
+                  </div>` : ''}
+              </div>`;
+          });
+          notesListHtml += `</div>`;
+        }
+
+        html += `
+          <div class="glass-panel overflow-hidden border border-border-subtle rounded-2xl">
+            <button onclick="toggleSubject('${subject}')" class="w-full flex items-center justify-between p-5 bg-white/2 hover:bg-white/4 transition-all duration-300 text-left border-b border-border-subtle">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-wa-green/10 flex items-center justify-center text-sm">📁</div>
+                <div>
+                  <h3 class="font-display font-bold text-lg text-text-primary">${subject}</h3>
+                  <p class="text-xs text-text-muted mt-0.5">${subjectNotes.length} notes captured</p>
+                </div>
+              </div>
+              <span class="text-text-muted transition-transform duration-300" style="transform: ${isOpen ? 'rotate(180deg)' : 'rotate(0deg)'}">
+                ▼
+              </span>
+            </button>
+            ${notesListHtml}
+          </div>`;
+      });
+
+      container.innerHTML = html;
+    }
+
+    // Render Deadlines View
+    function renderDeadlines() {
+      const container = document.getElementById('deadlines-container');
+      let html = '';
+
+      deadlinesData.forEach(deadline => {
+        // Urgency logic
+        const now = new Date();
+        const due = new Date(deadline.due_date);
+        const diffMs = due.getTime() - now.getTime();
+        const diffHours = diffMs / (1000 * 60 * 60);
+
+        let urgencyBadge = 'Scheduled';
+        let cardStyle = 'border-border-subtle bg-white/1.5 hover:border-wa-green/30 text-text-primary';
+        let badgeStyle = 'bg-wa-green/8 text-wa-green border-wa-green/10';
+        let glowStyle = '';
+        let timeRemaining = '';
+
+        if (diffMs < 0) {
+          urgencyBadge = 'Passed';
+          cardStyle = 'border-white/5 bg-white/2 text-text-muted';
+          badgeStyle = 'bg-white/5 text-text-muted border-white/10';
+          timeRemaining = 'Passed';
+        } else {
+          const hours = Math.floor(diffHours);
+          if (hours < 24) {
+            urgencyBadge = 'Due Soon (24h)';
+            cardStyle = 'border-red-500/20 bg-red-500/3 text-red-200 hover:border-red-500/40';
+            badgeStyle = 'bg-red-500/10 text-red-400 border-red-500/20';
+            glowStyle = 'glow-red';
+            timeRemaining = `${hours}h remaining`;
+          } else if (hours < 168) {
+            urgencyBadge = 'Upcoming (1 week)';
+            cardStyle = 'border-orange-500/20 bg-orange-500/3 text-orange-200 hover:border-orange-500/40';
+            badgeStyle = 'bg-orange-500/10 text-orange-400 border-orange-500/20';
+            glowStyle = 'glow-orange';
+            timeRemaining = `${Math.floor(hours / 24)}d remaining`;
+          } else {
+            timeRemaining = `${Math.floor(hours / 24)}d remaining`;
+          }
+        }
+
+        const formattedDate = due.toLocaleDateString('en-US', {
+          month: 'short',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+
+        html += `
+          <div class="glass-panel p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 border transition-all duration-300 rounded-xl ${cardStyle} ${glowStyle}">
+            <div class="flex items-start gap-4">
+              <div class="w-10 h-10 rounded-lg flex items-center justify-center text-lg ${diffMs < 0 ? 'bg-white/5' : 'bg-wa-green/10'}">⏰</div>
+              <div>
+                <h3 class="font-display font-bold text-base md:text-lg mb-1 leading-snug">${deadline.description}</h3>
+                <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-text-secondary">
+                  <span>Due: ${formattedDate}</span>
+                  ${diffMs >= 0 ? `
+                    <span class="text-text-muted">•</span>
+                    <span class="font-medium text-text-primary">${timeRemaining}</span>` : ''}
+                </div>
+              </div>
+            </div>
+            <div class="flex items-center gap-3 self-end md:self-center">
+              <span class="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded border ${badgeStyle}">${urgencyBadge}</span>
+              ${deadline.reminder_sent ? `<span class="text-[10px] font-semibold bg-white/5 text-text-muted px-2 py-0.5 rounded border border-white/5">📢 Reminder Sent</span>` : ''}
+            </div>
+          </div>`;
+      });
+
+      container.innerHTML = html;
+    }
+
+    // Render Predictions View
+    function renderPredictions() {
+      const container = document.getElementById('predictions-container');
+      let html = '';
+
+      predictionsData.forEach(prediction => {
+        let topicsHtml = '';
+        
+        if (prediction.predicted_topics && prediction.predicted_topics.length > 0) {
+          prediction.predicted_topics.forEach(t => {
+            const isHigh = t.confidence && t.confidence.toLowerCase() === 'high';
+            const badgeStyle = isHigh ? 'bg-red-500/8 text-red-400 border-red-500/20' : 'bg-orange-500/8 text-orange-400 border-orange-500/20';
+            
+            topicsHtml += `
+              <div class="glass-panel p-5 bg-white/1 flex flex-col justify-between border border-border-subtle hover:border-wa-green/20 transition-all duration-300 rounded-xl relative overflow-hidden">
+                <div class="space-y-3">
+                  <div class="flex items-start justify-between gap-3">
+                    <h4 class="font-display font-bold text-base text-text-primary leading-snug">${t.topic}</h4>
+                    <span class="text-[9px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded border ${badgeStyle}">${t.confidence || 'Medium'} Confidence</span>
+                  </div>
+                  <div class="text-xs text-text-muted flex items-center gap-1.5">
+                    <span>🔥 Recurring pattern:</span>
+                    <span class="font-semibold text-text-primary">${t.appears_in_papers}x matches</span>
+                  </div>
+                  ${t.example_question ? `
+                    <div class="bg-bg-primary/50 border border-border-subtle/30 rounded-lg p-3 relative mt-3">
+                      <span class="absolute -top-2 left-3 text-lg leading-none text-wa-green opacity-40 font-serif">“</span>
+                      <p class="text-xs text-text-secondary leading-relaxed pl-3 italic">${t.example_question}</p>
+                    </div>` : ''}
+                </div>
+              </div>`;
+          });
+        } else {
+          topicsHtml = `<p class="text-sm text-text-muted">No recurring high probability topics analyzed.</p>`;
+        }
+
+        html += `
+          <div class="space-y-4">
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-border-subtle pb-3">
+              <h2 class="font-display font-bold text-xl text-text-primary">${prediction.subject}</h2>
+              <span class="text-xs text-text-secondary bg-white/5 border border-border-subtle px-3 py-1 rounded-full">
+                📊 Analyzed ${prediction.papers_analyzed} papers
+              </span>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              ${topicsHtml}
+            </div>
+          </div>`;
+      });
+
+      container.innerHTML = html;
+    }
+
+    // Bootstrapping
+    document.addEventListener("DOMContentLoaded", () => {
+      loadAllData();
+    });
+  </script>
+</body>
+</html>
