@@ -88,7 +88,7 @@ async function processPyqText(sock, chatId, subject, year, rawText) {
     .from('past_papers')
     .select('id')
     .eq('chat_id', chatId)
-    .eq('subject', subject);
+    .ilike('subject', subject);
 
   const count = allPapers ? allPapers.length : 1;
 
@@ -101,7 +101,7 @@ async function runPredictionForSubject(sock, chatId, subject) {
     .from('past_papers')
     .select('raw_text, year')
     .eq('chat_id', chatId)
-    .eq('subject', subject);
+    .ilike('subject', subject);
 
   if (fetchErr || !allPapers || allPapers.length === 0) {
     await sock.sendMessage(chatId, { text: `🤖 *Class Copilot AI*\n\nI don't have any past papers saved for *${subject}* yet.` });
@@ -143,7 +143,7 @@ Return a valid JSON object in the following format exactly:
     const predictionObj = await generatePredictionJson(predictPrompt, contextLength);
     
     // 6. Upsert to predictions table
-    await supabase.from('predictions').delete().eq('chat_id', chatId).eq('subject', subject);
+    await supabase.from('predictions').delete().eq('chat_id', chatId).ilike('subject', subject);
     
     await supabase.from('predictions').insert([{
       chat_id: chatId,
