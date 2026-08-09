@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 
-const HARDCODED_CHAT_ID = '120363419514236110@g.us';
+const HARDCODED_CHAT_ID = process.env.NEXT_PUBLIC_GROUP_ID || '120363412429875166@g.us';
 
 interface Note {
   id: string;
