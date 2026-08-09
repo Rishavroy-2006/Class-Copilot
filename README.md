@@ -16,7 +16,7 @@ But they cannot organize it all — until now.
 
 Class Copilot is a full-featured AI agent that gives your existing WhatsApp group the ability to autonomously capture notes, track deadlines, predict exam questions, and answer complex queries based on your class material. No new apps to download. No confusing onboarding. Just plug in and study smarter.
 
-**demo:** _Coming soon — video demo in progress_
+**Live Dashboard Demo:** https://classcopilot.vercel.app
 
 ## How It Works
 
@@ -147,6 +147,8 @@ npm run dev
 | `GEMINI_API_KEY` | Yes | — | Triple-redundant fallback for massive contexts (`gemini-3.5-flash-lite`) |
 | `SUPABASE_URL` | Yes | — | URL to your Supabase project |
 | `SUPABASE_KEY` | Yes | — | `service_role` key to bypass RLS in the backend |
+| `NEXT_PUBLIC_SUPABASE_URL` | Yes | — | Supabase URL for the Next.js frontend |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Yes | — | Supabase `anon` key for the frontend dashboard |
 | `NEXT_PUBLIC_GROUP_ID` | No | `120363412429875166@g.us` | The specific WhatsApp Chat ID the dashboard should display data for |
 
 ## Core Features Reference
@@ -196,10 +198,10 @@ What to expect:
 - **Group-Only Privacy** — The bot physically cannot read Direct Messages or Broadcasts. The global guardrail drops all non-group traffic at the socket level.
 - **Troll Shield** — A dedicated 86M guardrail model intercepts all queries before they hit the expensive LLM.
 - **Local Auth** — WhatsApp session tokens are stored locally in the `/auth` folder. They never touch the cloud.
-- **Backend-Only Secrets** — Built as a strict Node.js backend. No React/Next.js frontend exposure vulnerabilities beyond the public group ID.
-- **No Database Exposure** — Connects to Supabase exclusively via the secure `service_role` key on the backend.
+- **Row Level Security (RLS)** — The Next.js dashboard uses a public `anon` key, safely locked down by Supabase RLS policies to ensure it can only `SELECT` data, preventing malicious client-side edits.
+- **Backend-Only Admin** — The backend connects to Supabase exclusively via the secure `service_role` key to insert and update data securely.
 - **Hackathon Disclosure:** This project uses an unofficial library (Baileys) to connect to WhatsApp rather than Meta's official Business API. Treat this as a demo-scale bridge.
-- **Git Security:** Ensure all API keys are strictly stored in `.env`. Do not hardcode keys.
+- **Git Security:** All API keys are strictly stored in `.env` and `.env.local` templates, which are strictly protected by `.gitignore`.
 
 ## Comparison Table
 
