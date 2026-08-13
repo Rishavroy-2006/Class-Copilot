@@ -1,5 +1,6 @@
 const { downloadContentFromMessage } = require('@whiskeysockets/baileys');
 const pdfParse = require('pdf-parse');
+const xlsx = require('xlsx');
 const crypto = require('crypto');
 const supabase = require('../supabaseClient');
 const { fastExtractJson, embedText } = require('../llmRouter');
@@ -7,29 +8,28 @@ const { fastExtractJson, embedText } = require('../llmRouter');
 const MAX_PDF_SIZE_MB = 10;
 const JACCARD_THRESHOLD = 0.85; // notes with >85% word overlap are considered duplicates
 
-/**
- * Computes Jaccard similarity between two strings based on their word sets.
- * Returns a value between 0 (completely different) and 1 (identical).
- */
-function jaccardSimilarity(a, b) {
-  const tokenize = str => new Set(str.toLowerCase().replace(/[^a-z0-9\s]/g, '').split(/\s+/).filter(Boolean));
-  const setA = tokenize(a);
-  const setB = tokenize(b);
+function tokenizeText(str) {
+  return new Set(str.toLowerCase().replace(/[^a-z0-9\s]/g, '').split(/\s+/).filter(Boolean));
+}
+
+function jaccardSimilaritySets(setA, setB) {
   if (setA.size === 0 && setB.size === 0) return 1;
   const intersection = new Set([...setA].filter(w => setB.has(w)));
   const union = new Set([...setA, ...setB]);
   return intersection.size / union.size;
 }
 
-async function extractSubjectFromText(text) {
+async function extractSubjectFromText(text, filename = '') {
+  const fileContext = filename ? `Filename: ${filename}\\n` : '';
   const prompt = `Analyze the following text.
 1. Determine the specific academic course or subject name (e.g., Data Structures, Operating Systems, Cryptography). Do not use broad category names like "Computer Science" if a specific course name is present.
-2. Determine if this text is a university exam question paper / past year paper (PYQ). Question papers usually have marks, instructions like "Answer any ten", module names, and numbered questions.
+2. If the text appears to be a list of names, volunteers, or administrative data without a clear academic subject, categorize it based on the filename or label it "General List".
+3. Determine if this text is a university exam question paper / past year paper (PYQ). Question papers usually have marks, instructions like "Answer any ten", module names, and numbered questions.
 
 Return only a JSON object in this format: {"subject": "Subject Name", "is_pyq": true, "year": "2023 or unknown"}
 
 Text snippet:
-${text.substring(0, 1000)}...`;
+${fileContext}${text.substring(0, 1500)}...`;
 
   try {
     const result = await fastExtractJson(prompt);
@@ -55,6 +55,8 @@ async function handleNote(msg, text, chatId, sock) {
     const imgMessage = msg.message?.imageMessage;
 
     if (docMessage) {
+      const isSpreadsheet = docMessage.mimetype?.includes('spreadsheetml') || docMessage.mimetype?.includes('ms-excel') || docMessage.mimetype?.includes('csv') || docMessage.fileName?.endsWith('.xlsx') || docMessage.fileName?.endsWith('.xls') || docMessage.fileName?.endsWith('.csv');
+
       if (docMessage.mimetype === 'application/pdf') {
         if (docMessage.fileLength > MAX_PDF_SIZE_MB * 1024 * 1024) {
           console.log(`[noteHandler] Skipping PDF > ${MAX_PDF_SIZE_MB}MB`);
@@ -71,17 +73,50 @@ async function handleNote(msg, text, chatId, sock) {
 
         try {
           const pdfData = await pdfParse(buffer);
-          contentToSave = pdfData.text.trim() || '[Empty PDF]';
+          contentToSave = `[Document: ${docMessage.fileName || 'Untitled PDF'}]\\n` + (pdfData.text.trim() || '[Empty PDF]');
         } catch (parseErr) {
           console.error('[noteHandler] Failed to parse PDF:', parseErr);
           contentToSave = '[Unparseable PDF]';
+        }
+      } else if (isSpreadsheet) {
+        if (docMessage.fileLength > MAX_PDF_SIZE_MB * 1024 * 1024) {
+          console.log(`[noteHandler] Skipping Spreadsheet > ${MAX_PDF_SIZE_MB}MB`);
+          return;
+        }
+
+        const stream = await downloadContentFromMessage(docMessage, 'document');
+        const chunks = [];
+        for await (const chunk of stream) {
+          chunks.push(chunk);
+        }
+        const buffer = Buffer.concat(chunks);
+
+        try {
+          const workbook = xlsx.read(buffer, { type: 'buffer' });
+          let textParts = [];
+          
+          for (const sheetName of workbook.SheetNames) {
+            const sheet = workbook.Sheets[sheetName];
+            const csvText = xlsx.utils.sheet_to_csv(sheet);
+            if (csvText.trim()) {
+              textParts.push(`--- Sheet: ${sheetName} ---\\n${csvText.trim()}`);
+            }
+          }
+          contentToSave = `[Document: ${docMessage.fileName || 'Untitled Spreadsheet'}]\\n` + (textParts.join('\\n\\n') || '[Empty Spreadsheet]');
+        } catch (parseErr) {
+          console.error('[noteHandler] Failed to parse Spreadsheet:', parseErr);
+          contentToSave = '[Unparseable Spreadsheet]';
         }
       } else {
         contentToSave = docMessage.caption || docMessage.fileName || '[Non-PDF Document]';
       }
     } else if (imgMessage) {
-      contentToSave = imgMessage.caption || '[photo note - OCR pending]';
-    }
+        if (!imgMessage.caption) {
+          console.log('[noteHandler] Skipping image note with no caption (OCR pending).');
+          return;
+        }
+        contentToSave = imgMessage.caption;
+      }
 
     // --- Deduplication: skip if identical content was already saved for this chat ---
     const contentHash = crypto.createHash('sha256').update(contentToSave.trim()).digest('hex');
@@ -106,8 +141,10 @@ async function handleNote(msg, text, chatId, sock) {
       .limit(20);
 
     if (recentNotes) {
+      const setA = tokenizeText(contentToSave);
       for (const note of recentNotes) {
-        const score = jaccardSimilarity(contentToSave, note.content);
+        const setB = tokenizeText(note.content);
+        const score = jaccardSimilaritySets(setA, setB);
         if (score >= JACCARD_THRESHOLD) {
           console.log(`[noteHandler] Near-duplicate note detected (Jaccard: ${score.toFixed(2)}) — skipping save.`);
           return;
@@ -115,8 +152,15 @@ async function handleNote(msg, text, chatId, sock) {
       }
     }
 
+    // --- Enforce max context length to protect DB and LLM Context Window ---
+    const MAX_TEXT_LENGTH = 75000;
+    if (contentToSave.length > MAX_TEXT_LENGTH) {
+      console.log(`[noteHandler] Truncating massive note from ${contentToSave.length} to ${MAX_TEXT_LENGTH} characters.`);
+      contentToSave = contentToSave.substring(0, MAX_TEXT_LENGTH) + '\\n\\n...[Content Truncated due to size limits]';
+    }
+
     if (contentToSave.length > 20) {
-       const info = await extractSubjectFromText(contentToSave);
+       const info = await extractSubjectFromText(contentToSave, docMessage?.fileName);
        subject = info.subject;
        isPyq = info.is_pyq;
        year = info.year;

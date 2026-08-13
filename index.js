@@ -1,6 +1,5 @@
 const {
   default: makeWASocket,
-  useMultiFileAuthState,
   DisconnectReason,
   fetchLatestBaileysVersion,
 } = require('@whiskeysockets/baileys');
@@ -13,10 +12,19 @@ const { handleDeadline, loadAndScheduleExistingDeadlines } = require('./handlers
 const { handleQuestion } = require('./handlers/questionHandler');
 const { handleSummary } = require('./handlers/summaryHandler');
 const { handlePyq } = require('./handlers/pyqHandler');
+const http = require('http');
+const supabase = require('./supabaseClient');
+const { useSupabaseAuthState } = require('./supabaseAuthState');
+
+let isShuttingDown = false;
+let currentSock = null;
+let isConnected = false;
 
 async function startBridge() {
-  // Saves your login session to ./auth so you don't have to re-scan the QR every time
-  const { state, saveCreds } = await useMultiFileAuthState('auth');
+  if (isShuttingDown) return;
+
+  // Uses Supabase to store authentication state, allowing sessions to persist across Render restarts
+  const { state, saveCreds } = await useSupabaseAuthState(supabase, 'class_copilot_session');
   
   // Fetch the absolute latest WhatsApp Web version to avoid connection blocks
   const { version, isLatest } = await fetchLatestBaileysVersion();
@@ -27,6 +35,8 @@ async function startBridge() {
     auth: state,
     logger: pino({ level: 'silent' }), // set to 'info' if you want verbose connection logs
   });
+  
+  currentSock = sock;
 
   // Fires whenever connection state changes (QR ready, connected, disconnected, etc.)
   sock.ev.on('connection.update', (update) => {
@@ -38,12 +48,14 @@ async function startBridge() {
     }
 
     if (connection === 'close') {
-      const shouldReconnect =
+      isConnected = false;
+      const willReconnect = !isShuttingDown &&
         new Boom(lastDisconnect?.error)?.output?.statusCode !== DisconnectReason.loggedOut;
-      console.log('Connection closed. Reconnecting:', shouldReconnect);
-      if (shouldReconnect) startBridge();
+      console.log('Connection closed. Reconnecting:', willReconnect);
+      if (willReconnect) startBridge();
     } else if (connection === 'open') {
       console.log('✅ Connected to WhatsApp!');
+      isConnected = true;
       loadAndScheduleExistingDeadlines(sock);
     }
   });
@@ -58,6 +70,9 @@ async function startBridge() {
     for (const msg of messages) {
       if (!msg.message) continue; // skip protocol/system messages
       if (msg.key.fromMe) continue; // skip messages sent by this bot's own linked account
+      
+      const botJid = sock.user?.id ? sock.user.id.split(':')[0].split('@')[0] + '@s.whatsapp.net' : null;
+      if (botJid && msg.key.participant === botJid) continue; // strictly ignore own messages in groups
 
       const sender = msg.pushName || msg.key.participant || msg.key.remoteJid;
       const chatId = msg.key.remoteJid; // this is the group ID if it's a group message
@@ -162,5 +177,55 @@ async function startBridge() {
     }
   });
 }
+
+const PORT = process.env.PORT || 10000;
+const server = http.createServer((req, res) => {
+  if (req.url === '/health' && req.method === 'GET') {
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ 
+      status: 'ok', 
+      whatsapp: isConnected ? 'connected' : 'disconnected',
+      timestamp: new Date().toISOString() 
+    }));
+  } else {
+    res.writeHead(404);
+    res.end();
+  }
+});
+
+server.listen(PORT, () => {
+  console.log(`[system] Health check server listening on port ${PORT}`);
+});
+
+// Graceful Shutdown Sequence
+const shutdown = async () => {
+  if (isShuttingDown) return;
+  isShuttingDown = true;
+  console.log('\\n[system] Gracefully shutting down...');
+  
+  // 1. Close HTTP server so uptime monitors know it's down
+  server.close(() => {
+    console.log('[system] HTTP server closed.');
+  });
+
+  // 2. End WhatsApp connection if it exists
+  if (currentSock) {
+    try {
+      console.log('[system] Closing WhatsApp socket...');
+      currentSock.end(undefined);
+    } catch (e) {
+      console.error('[system] Error closing socket:', e);
+    }
+  }
+
+  // 3. Allow pending operations (like saveCreds / Supabase calls) to finish before exit
+  setTimeout(() => {
+    console.log('[system] Process exiting cleanly.');
+    process.exit(0);
+  }, 3000);
+};
+
+process.on('SIGTERM', shutdown);
+process.on('SIGINT', shutdown);
 
 startBridge();

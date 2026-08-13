@@ -32,8 +32,8 @@ const EMOJI_ONLY_PATTERN = /^[\p{Extended_Pictographic}\s]+$/u;
 const ABSENCE_PATTERN = /\b(out\s+of\s+station|out\s+of\s+kolkata|can't\s+attend|cannot\s+attend|won't\s+attend|family\s+urgency|family\s+emergency|sorry\s+ma'?m|not\s+able\s+to\s+attend)\b/i;
 const SYSTEM_PATTERN = /(message\s+was\s+deleted|media\s+omitted|pinned\s+a\s+message|added\s+the\s+group|removed\s+the\s+group|community\s+admin|changed\s+the\s+description)/i;
 
-const NOTE_PATTERN = /\b(notes?|pdf|ppt|pptx|document|docx|brochure|notice|circular|schedule|routine|timetable|guideline|manual|syllabus|material|resource|question\s*paper|attachment|attached|media|image|flyer|list|updated\s*list|please\s*find|uploaded|\.pdf|\.pptx?|\.docx?)\b/i;
-const NOTE_URL_PATTERN = /(drive\.google|docs\.google|forms\.gle|docs\.google\.com\/forms|nit\.ac\.in|devfolio|github|skillindiadigital|sbh\.rcciit|instagram\.com|facebook\.com|1drv\.ms|onedrive\.live\.com|mega\.nz)/i;
+const NOTE_PATTERN = /\b(notes?|pdf|ppt|pptx|document|docx|brochure|notice|circular|schedule|routine|timetable|guideline|manual|syllabus|material|resource|question\s*paper|attachment|attached|media|image|flyer|updated\s*list|please\s*find|uploaded|\.pdf|\.pptx?|\.docx?)\b/i;
+const NOTE_URL_PATTERN = /https?:\/\/(www\.)?(drive\.google|docs\.google|forms\.gle|nit\.ac\.in|devfolio\.co|github\.com|skillindiadigital|instagram\.com|facebook\.com|1drv\.ms|onedrive\.live\.com|mega\.nz)/i;
 
 const QUESTION_PATTERN = /(\?(\s*@\d+)*$|^(what|why|who|where|when|how|can|could|will|would|does|do|is|are|whose)\b|^any(one|body)\b|^any(one|body)\s+ha(s|ve)\b|^has\s+anyone\b|^can\s+(someone|anyone)\b|^pls\b|^please\b.*\b(send|share|give)\b|\b(need|send|share|provide)\s+(notes|pdf|link|material|assignment|syllabus)\b|where\s+can\s+i|roll\s+no)/i;
 
@@ -129,10 +129,12 @@ async function llmClassify(text) {
 
   const prompt = `Classify this class group chat message into exactly one word: NOTE, DEADLINE, QUESTION, or NOISE.
 
-- NOTE: shares study material, notes, or resources
+- NOTE: shares study material, notes, or resources (MUST contain actual educational content, files, or links. Casual discussions are NOT notes).
 - DEADLINE: mentions an assignment, exam, or submission with a time reference
 - QUESTION: is genuinely asking something that needs an answer
-- NOISE: casual chat, jokes, greetings, anything not academically useful
+- NOISE: casual chat, jokes, greetings, personal achievements, opinions, or anything not explicitly an announcement or study material
+
+If in doubt between NOISE and NOTE for conversational text, ALWAYS choose NOISE.
 
 Message: "${text}"
 
