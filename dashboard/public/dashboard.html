@@ -90,13 +90,13 @@
 
       <div class="flex items-center gap-3">
         <!-- Data Source Status Indicator -->
-        <div id="demo-indicator" class="flex items-center gap-1.5 px-3 py-1.5 bg-orange-500/10 border border-orange-500/20 text-orange-400 rounded-full text-[11px] font-semibold tracking-wide shadow-[0_0_15px_rgba(249,115,22,0.05)]">
-          <span class="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse"></span>
-          <span>Demo Mode</span>
+        <div id="demo-indicator" class="flex items-center gap-1.5 px-3 py-1.5 bg-wa-green/10 border border-wa-green/20 text-wa-green rounded-full text-[11px] font-semibold tracking-wide shadow-[0_0_15px_rgba(37,211,102,0.05)]">
+          <span class="w-1.5 h-1.5 rounded-full bg-wa-green animate-ping"></span>
+          <span>Live Database</span>
         </div>
         
-        <button id="toggle-datasource" onclick="toggleDataSource()" class="text-xs font-semibold text-text-primary hover:text-wa-green border border-border-subtle hover:border-wa-green/30 px-3.5 py-1.5 rounded-full transition-all duration-300 bg-white/2">
-          Connect Live DB
+        <button id="toggle-datasource" onclick="toggleDataSource()" class="text-xs font-semibold text-text-primary hover:text-orange-400 border border-border-subtle hover:border-orange-500/30 px-3.5 py-1.5 rounded-full transition-all duration-300 bg-white/2">
+          Use Demo Mode
         </button>
 
         <a href="index.html" class="text-xs font-semibold text-text-secondary hover:text-text-primary border border-border-subtle hover:border-white/10 px-3.5 py-1.5 rounded-full transition-all duration-300">
@@ -186,17 +186,8 @@
   <!-- Simulation JS Logic -->
   <script>
     // Supabase config
-    const supabaseUrl = 'https://ahwnjcmbroxtxdygqlrq.supabase.co';
-    const supabaseKey = 'sb_publishable_Acncr8-nb6NiOgrw7fPMvg_FeVr2pWy';
-    const HARDCODED_CHAT_ID = '120363419514236110@g.us';
-
     let supabaseClient = null;
-
-    try {
-      supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
-    } catch (e) {
-      console.error("Failed to initialize Supabase client:", e);
-    }
+    const HARDCODED_CHAT_ID = '120363412429875166@g.us';
 
     // Toggle subjects accordion state
     const openSubjects = {};
@@ -456,8 +447,12 @@
       }
     }
 
+    let globalLoadId = 0;
+    
     // Load All Data
     async function loadAllData() {
+      const currentLoadId = ++globalLoadId;
+
       showSkeleton('notes-container');
       showSkeleton('deadlines-container');
       showSkeleton('predictions-container');
@@ -465,6 +460,7 @@
       if (isDemoMode) {
         // Load high-fidelity mock data instantly
         setTimeout(() => {
+          if (currentLoadId !== globalLoadId) return; // Prevent race conditions
           notesData = MOCK_NOTES;
           deadlinesData = MOCK_DEADLINES;
           predictionsData = MOCK_PREDICTIONS;
@@ -485,8 +481,9 @@
 
       // Live DB Mode
       if (!supabaseClient) {
-        console.warn('Supabase Client failed to initialize. Automatically falling back to Demo Mode.');
-        useDemoMode();
+        showError('notes-container', 'Supabase Client failed to initialize. Check console.');
+        showError('deadlines-container', 'Supabase Client failed to initialize. Check console.');
+        showError('predictions-container', 'Supabase Client failed to initialize. Check console.');
         return;
       }
 
@@ -497,6 +494,8 @@
           .select('id, subject, content, created_at')
           .eq('chat_id', HARDCODED_CHAT_ID)
           .order('created_at', { ascending: false });
+
+        if (currentLoadId !== globalLoadId) return; // Abort if newer load exists
 
         if (error) throw error;
         notesData = data || [];
@@ -513,8 +512,8 @@
           renderNotes();
         }
       } catch (err) {
-        console.warn('Live DB Notes fetch failed, falling back to Demo Mode:', err.message);
-        useDemoMode();
+        console.error('Live DB Notes fetch failed:', err);
+        showErrorWithDemoOption('notes-container', err.message);
         return;
       }
 
@@ -526,6 +525,8 @@
           .eq('chat_id', HARDCODED_CHAT_ID)
           .order('due_date', { ascending: true });
 
+        if (currentLoadId !== globalLoadId) return; // Abort if newer load exists
+
         if (error) throw error;
         deadlinesData = data || [];
 
@@ -535,8 +536,8 @@
           renderDeadlines();
         }
       } catch (err) {
-        console.warn('Live DB Deadlines fetch failed, falling back to Demo Mode:', err.message);
-        useDemoMode();
+        console.error('Live DB Deadlines fetch failed:', err);
+        showErrorWithDemoOption('deadlines-container', err.message);
         return;
       }
 
@@ -548,6 +549,8 @@
           .eq('chat_id', HARDCODED_CHAT_ID)
           .order('created_at', { ascending: false });
 
+        if (currentLoadId !== globalLoadId) return; // Abort if newer load exists
+
         if (error) throw error;
         predictionsData = data || [];
 
@@ -557,8 +560,8 @@
           renderPredictions();
         }
       } catch (err) {
-        console.warn('Live DB Predictions fetch failed, falling back to Demo Mode:', err.message);
-        useDemoMode();
+        console.error('Live DB Predictions fetch failed:', err);
+        showErrorWithDemoOption('predictions-container', err.message);
         return;
       }
     }
@@ -772,7 +775,20 @@
     }
 
     // Bootstrapping
-    document.addEventListener("DOMContentLoaded", () => {
+    document.addEventListener("DOMContentLoaded", async () => {
+      try {
+        const res = await fetch('/api/env');
+        if (res.ok) {
+          const env = await res.json();
+          if (env.supabaseUrl && env.supabaseKey) {
+            supabaseClient = supabase.createClient(env.supabaseUrl, env.supabaseKey);
+          } else {
+            console.warn("Supabase credentials missing from /api/env");
+          }
+        }
+      } catch (e) {
+        console.error("Failed to fetch environment variables:", e);
+      }
       loadAllData();
     });
   </script>
