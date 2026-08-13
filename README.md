@@ -8,6 +8,7 @@
 ![Groq](https://img.shields.io/badge/Groq-Llama_3-orange?style=flat-square)
 ![Gemini](https://img.shields.io/badge/Gemini-Flash_Lite-blue?style=flat-square)
 ![Supabase](https://img.shields.io/badge/Supabase-pgvector-emerald?style=flat-square)
+![Render](https://img.shields.io/badge/Render-Deployed-purple?style=flat-square)
 ![License](https://img.shields.io/badge/License-MIT-gray?style=flat-square)
 
 Students can chat. They can share notes. They can panic about deadlines.
@@ -160,6 +161,7 @@ npm run dev
 
 ### 2. Note Management & Embeddings
 - **PDF & Document Parsing**: Detects attachments and extracts raw text using `pdf-parse`.
+- **Spreadsheet Support**: Seamlessly parses Excel spreadsheets (`.xlsx`) and CSVs to extract tabular data (like timetables or marks) using `xlsx`.
 - **Subject Extraction**: Automatically predicts the academic subject of a note.
 - **Vector Embeddings**: Uses `gemini-embedding-001` to generate 768-dimensional embeddings for semantic search and stores them in Supabase `pgvector`.
 
@@ -176,14 +178,25 @@ npm run dev
 - **Topic Prediction**: Command the bot to predict an exam, and it will concatenate all past papers for that subject, routing them through the LLM to identify the highest-probability recurring topics.
 
 ### 6. Live Web Dashboard
-- **Next.js Portal**: A gorgeous web interface built with React and Tailwind CSS.
-- **Native Serving**: The original static landing page is natively integrated to serve on the root path, automatically linking users to their live class dashboard.
+- **Premium UI Redesign**: A gorgeous "Cyber-Glass" aesthetic web interface built with React, Tailwind CSS, and glassmorphism design tokens.
+- **Connection Portal**: Features a dedicated onboarding page (`connect.html`) that provides a step-by-step visual guide for linking the bot to WhatsApp, including dynamic QR code handling and a sleek dashboard preview.
+- **Native Serving**: The static landing pages are natively integrated to serve on the root path with transparent navbars and responsive layouts, seamlessly routing users to the live class dashboard.
 
-## Live Demo (How to Test)
+### 7. Cloud-Native Architecture (Render Ready)
+- **Database-Backed Auth**: WhatsApp session credentials (`baileys_auth_state`) are securely saved to Supabase instead of the local filesystem. This ensures that the bot stays logged in even when cloud hosts (like Render or Heroku) restart the server.
+- **Health Checks & Graceful Shutdown**: Exposes a `/health` HTTP endpoint for uptime monitors and cleanly closes the WhatsApp socket on `SIGTERM`.
+
+## Live Demo & Deployment
+
+**Render Deployment:** The site is configured to run smoothly on [Render](https://render.com). You can spin up the Node.js backend web service and the Next.js frontend to instantly have a persistent, cloud-hosted agent.
+
+### Connecting & Testing Locally
 
 1. Start the bridge using `npm start`.
-2. Scan the QR code that appears in your terminal with your phone (WhatsApp -> Settings -> Linked Devices).
-3. Send this exact message in your test group:
+2. A QR code will appear in your terminal. Open WhatsApp on your primary phone, go to **Settings -> Linked Devices -> Link a Device**, and scan the QR code.
+3. The bot's WhatsApp account is now linked!
+4. Create a new WhatsApp Group (or use an existing one) and add the bot's phone number to the group.
+5. Send this exact message in your test group to see it work:
    > "Does anyone have the syllabus for CS101?"
 
 What to expect:
@@ -222,7 +235,8 @@ What to expect:
 - Auto-deadline scheduling
 - PYQ Predictor via concatenated RAG
 - Next.js Web Dashboard for out-of-chat viewing
-- Native Landing Page integration
+- Native Landing Page integration with Cyber-Glass UI Redesign
+- Render Cloud Deployment Compatibility
 
 **Next**
 - **Voice Note Transcription:** Whisper API integration so the bot can summarize voice rambles.

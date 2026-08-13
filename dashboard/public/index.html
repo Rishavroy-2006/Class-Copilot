@@ -1,15 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, shrink-to-fit=no" />
   <title>Class Copilot — AI Agent for Your WhatsApp Study Group</title>
-  <meta name="description" content="The first AI agent built for your entire class. Plug into any WhatsApp group in under 60 seconds. Notes, deadlines, and answers — all automated." />
+  <meta name="description"
+    content="The first AI agent built for your entire class. Plug into any WhatsApp group in under 60 seconds. Notes, deadlines, and answers — all automated." />
 
   <!-- Open Graph / Social Sharing -->
   <meta property="og:type" content="website" />
   <meta property="og:title" content="Class Copilot — AI Agent for Your WhatsApp Study Group" />
-  <meta property="og:description" content="The first AI agent built for your entire class. Drop it into any WhatsApp group — it captures notes, tracks deadlines, and answers questions from your actual class material." />
+  <meta property="og:description"
+    content="The first AI agent built for your entire class. Drop it into any WhatsApp group — it captures notes, tracks deadlines, and answers questions from your actual class material." />
   <meta property="og:image" content="og-image.png" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Class Copilot — AI for your study group" />
@@ -22,18 +25,18 @@
   <!-- Google Fonts (used weights only) -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+    rel="stylesheet" />
 
   <!-- Three.js for 3D (deferred, integrity-pinned) -->
-  <script
-    src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"
-    integrity="sha384-CI3ELBVUz9XQO+97x6nwMDPosPR5XvsxW2ua7N1Xeygeh1IxtgqtCkGfQY9WWdHu"
-    crossorigin="anonymous"
-    defer
-  ></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"
+    integrity="sha384-CI3ELBVUz9XQO+97x6nwMDPosPR5XvsxW2ua7N1Xeygeh1IxtgqtCkGfQY9WWdHu" crossorigin="anonymous"
+    defer></script>
 
   <link rel="stylesheet" href="style.css" />
 </head>
+
 <body>
   <!-- 3D Canvas Background -->
   <canvas id="bg-canvas"></canvas>
@@ -55,10 +58,12 @@
         <div class="logo-icon">
           <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
             <rect width="32" height="32" rx="8" fill="url(#logoGrad)" />
-            <path d="M16 6C10.48 6 6 10.18 6 15.31C6 17.97 7.23 20.37 9.21 22.03L8.1 25.5L11.82 24.3C13.11 24.87 14.52 25.18 16 25.18C21.52 25.18 26 21 26 15.87C26 10.74 21.52 6 16 6Z" fill="white" opacity="0.9"/>
-            <circle cx="12" cy="15" r="1.5" fill="url(#logoGrad)"/>
-            <circle cx="16" cy="15" r="1.5" fill="url(#logoGrad)"/>
-            <circle cx="20" cy="15" r="1.5" fill="url(#logoGrad)"/>
+            <path
+              d="M16 6C10.48 6 6 10.18 6 15.31C6 17.97 7.23 20.37 9.21 22.03L8.1 25.5L11.82 24.3C13.11 24.87 14.52 25.18 16 25.18C21.52 25.18 26 21 26 15.87C26 10.74 21.52 6 16 6Z"
+              fill="white" opacity="0.9" />
+            <circle cx="12" cy="15" r="1.5" fill="url(#logoGrad)" />
+            <circle cx="16" cy="15" r="1.5" fill="url(#logoGrad)" />
+            <circle cx="20" cy="15" r="1.5" fill="url(#logoGrad)" />
             <defs>
               <linearGradient id="logoGrad" x1="0" y1="0" x2="32" y2="32">
                 <stop stop-color="#25D366" />
@@ -76,16 +81,23 @@
         <a href="#compare" class="nav-link">Compare</a>
         <a href="#roadmap" class="nav-link">Roadmap</a>
         <!-- Mobile-only CTA inside the drawer -->
-        <a href="/dashboard/notes" class="nav-cta nav-cta-drawer">
-          <span>Get Started</span>
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <a href="connect.html" class="nav-cta nav-cta-drawer">
+          <span>Connect WhatsApp</span>
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round" />
+          </svg>
         </a>
       </div>
-      <a href="/dashboard/notes" class="nav-cta">
-        <span>Get Started</span>
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <a href="connect.html" class="nav-cta">
+        <span>Connect WhatsApp</span>
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round" />
+        </svg>
       </a>
-      <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation" aria-expanded="false" aria-controls="nav-links">
+      <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation" aria-expanded="false"
+        aria-controls="nav-links">
         <span></span><span></span><span></span>
       </button>
     </div>
@@ -103,18 +115,27 @@
         <span class="gradient-text">One AI Brain.</span>
       </h1>
       <p class="hero-subtitle animate-on-scroll">
-        The first AI agent that lives inside your WhatsApp group — capturing notes, 
-        tracking deadlines, and answering questions from your class material. 
+        The first AI agent that lives inside your WhatsApp group — capturing notes,
+        tracking deadlines, and answering questions from your class material.
         Zero new apps. Zero friction. Just plug in and study smarter.
       </p>
       <div class="hero-cta-group animate-on-scroll">
-        <a href="/dashboard/notes" class="btn btn-primary">
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 2C5.58 2 2 5.36 2 9.5C2 11.57 3 13.43 4.6 14.68L3.75 17.5L6.73 16.5C7.72 16.93 8.83 17.18 10 17.18C14.42 17.18 18 13.82 18 9.68C18 5.54 14.42 2 10 2Z" fill="#25D366"/><circle cx="7.5" cy="9.5" r="1" fill="white"/><circle cx="10" cy="9.5" r="1" fill="white"/><circle cx="12.5" cy="9.5" r="1" fill="white"/></svg>
+        <a href="connect.html" class="btn btn-primary">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <path
+              d="M10 2C5.58 2 2 5.36 2 9.5C2 11.57 3 13.43 4.6 14.68L3.75 17.5L6.73 16.5C7.72 16.93 8.83 17.18 10 17.18C14.42 17.18 18 13.82 18 9.68C18 5.54 14.42 2 10 2Z"
+              fill="#25D366" />
+            <circle cx="7.5" cy="9.5" r="1" fill="white" />
+            <circle cx="10" cy="9.5" r="1" fill="white" />
+            <circle cx="12.5" cy="9.5" r="1" fill="white" />
+          </svg>
           <span>Connect WhatsApp</span>
         </a>
-        <a href="#how-it-works" class="btn btn-ghost">
+        <a href="dashboard.html" class="btn btn-ghost">
           <span>See Demo</span>
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><polygon points="5,3 13,8 5,13" fill="currentColor"/></svg>
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <polygon points="5,3 13,8 5,13" fill="currentColor" />
+          </svg>
         </a>
       </div>
       <div class="hero-stats animate-on-scroll">
@@ -157,7 +178,12 @@
             </div>
             <div class="wa-msg wa-msg-bot wa-msg-anim" style="--delay: 1.8s">
               <div class="wa-msg-name">🤖 Class Copilot</div>
-              <div class="wa-msg-text">Found 3 relevant notes on BST! Here's a summary:<br/><br/>📌 <strong>BST Properties:</strong> Left child < parent < right child<br/>📌 <strong>Time Complexity:</strong> O(log n) avg, O(n) worst<br/>📌 <strong>Key Operations:</strong> Insert, Delete, Search<br/><br/><em>Source: Lecture 7 Notes (uploaded by Arjun)</em></div>
+              <div class="wa-msg-text">Found 3 relevant notes on BST! Here's a summary:<br /><br />📌 <strong>BST
+                  Properties:</strong> Left child
+                < parent < right child<br />📌 <strong>Time Complexity:</strong> O(log n) avg, O(n) worst<br />📌
+                <strong>Key Operations:</strong> Insert, Delete, Search<br /><br /><em>Source: Lecture 7 Notes (uploaded
+                  by Arjun)</em>
+              </div>
               <div class="wa-msg-time">9:41 PM ✓✓</div>
             </div>
             <div class="wa-msg wa-msg-other wa-msg-anim" style="--delay: 3.2s">
@@ -184,7 +210,9 @@
           <div class="wa-input-bar">
             <div class="wa-input-placeholder">Type a message</div>
             <div class="wa-send-btn">
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M2 10L18 2L14 10L18 18L2 10Z" fill="#25D366"/></svg>
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <path d="M2 10L18 2L14 10L18 18L2 10Z" fill="#25D366" />
+              </svg>
             </div>
           </div>
         </div>
@@ -202,23 +230,38 @@
       <p class="tech-strip-label">Powered By</p>
       <div class="tech-logos">
         <div class="tech-logo">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="#25D366"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 1.802 6.307L0 24l5.885-1.748A11.91 11.91 0 0 0 11.944 24c6.627 0 12-5.373 12-12s-5.373-12-12-12zm.057 20.301c-1.804 0-3.568-.484-5.112-1.401l-.367-.217-3.799 1.127 1.139-3.708-.238-.378a9.839 9.839 0 0 1-1.503-5.321c0-5.433 4.42-9.852 9.854-9.852 2.632 0 5.105 1.026 6.966 2.888 1.861 1.861 2.887 4.334 2.887 6.965 0 5.433-4.421 9.852-9.854 9.852zm5.421-7.404c-.297-.149-1.758-.868-2.03-.967-.272-.1-.471-.149-.668.149-.198.297-.768.967-.942 1.164-.173.198-.347.223-.644.074a8.1 8.1 0 0 1-2.42-1.493 8.941 8.941 0 0 1-1.676-2.083c-.173-.298-.018-.458.13-.606.134-.133.297-.347.446-.52.148-.174.198-.298.297-.496.1-.198.05-.371-.025-.52-.074-.148-.668-1.611-.916-2.206-.241-.579-.485-.5-.668-.51h-.57c-.198 0-.52.074-.792.372-.272.297-1.04 1.015-1.04 2.476s1.064 2.873 1.213 3.072c.148.198 2.096 3.2 5.078 4.487.71.306 1.264.489 1.694.626.713.227 1.362.195 1.875.118.577-.087 1.758-.718 2.006-1.411.248-.694.248-1.288.173-1.411-.074-.124-.272-.198-.57-.347z"/></svg>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="#25D366">
+            <path
+              d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 1.802 6.307L0 24l5.885-1.748A11.91 11.91 0 0 0 11.944 24c6.627 0 12-5.373 12-12s-5.373-12-12-12zm.057 20.301c-1.804 0-3.568-.484-5.112-1.401l-.367-.217-3.799 1.127 1.139-3.708-.238-.378a9.839 9.839 0 0 1-1.503-5.321c0-5.433 4.42-9.852 9.854-9.852 2.632 0 5.105 1.026 6.966 2.888 1.861 1.861 2.887 4.334 2.887 6.965 0 5.433-4.421 9.852-9.854 9.852zm5.421-7.404c-.297-.149-1.758-.868-2.03-.967-.272-.1-.471-.149-.668.149-.198.297-.768.967-.942 1.164-.173.198-.347.223-.644.074a8.1 8.1 0 0 1-2.42-1.493 8.941 8.941 0 0 1-1.676-2.083c-.173-.298-.018-.458.13-.606.134-.133.297-.347.446-.52.148-.174.198-.298.297-.496.1-.198.05-.371-.025-.52-.074-.148-.668-1.611-.916-2.206-.241-.579-.485-.5-.668-.51h-.57c-.198 0-.52.074-.792.372-.272.297-1.04 1.015-1.04 2.476s1.064 2.873 1.213 3.072c.148.198 2.096 3.2 5.078 4.487.71.306 1.264.489 1.694.626.713.227 1.362.195 1.875.118.577-.087 1.758-.718 2.006-1.411.248-.694.248-1.288.173-1.411-.074-.124-.272-.198-.57-.347z" />
+          </svg>
           <span>WhatsApp</span>
         </div>
         <div class="tech-logo">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="12" fill="#F97316"/><text x="12" y="17" font-size="14" font-weight="900" fill="white" text-anchor="middle" font-family="Arial, sans-serif">G</text></svg>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="12" fill="#F97316" /><text x="12" y="17" font-size="14" font-weight="900"
+              fill="white" text-anchor="middle" font-family="Arial, sans-serif">G</text>
+          </svg>
           <span>Groq</span>
         </div>
         <div class="tech-logo">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="#4285F4"><path d="M22.5 12c-4.48 0-8-3.52-8-8 0 4.48-3.52 8-8 8 4.48 0 8 3.52 8 8 0-4.48 3.52-8 8-8z"/><path d="M9 5c-1.68 0-3-1.32-3-3 0 1.68-1.32 3-3 3 1.68 0 3 1.32 3 3 0-1.68 1.32-3 3-3z"/></svg>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="#4285F4">
+            <path d="M22.5 12c-4.48 0-8-3.52-8-8 0 4.48-3.52 8-8 8 4.48 0 8 3.52 8 8 0-4.48 3.52-8 8-8z" />
+            <path d="M9 5c-1.68 0-3-1.32-3-3 0 1.68-1.32 3-3 3 1.68 0 3 1.32 3 3 0-1.68 1.32-3 3-3z" />
+          </svg>
           <span>Gemini</span>
         </div>
         <div class="tech-logo">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="#3ECF8E"><path d="M12.001 0a12 12 0 00-7.394 21.464l4.088-14.07 9.88 5.61A12.001 12.001 0 0012.001 0zm0 24a12 12 0 007.394-21.464l-4.088 14.07-9.88-5.61A12.001 12.001 0 0012.001 24z"/></svg>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="#3ECF8E">
+            <path
+              d="M12.001 0a12 12 0 00-7.394 21.464l4.088-14.07 9.88 5.61A12.001 12.001 0 0012.001 0zm0 24a12 12 0 007.394-21.464l-4.088 14.07-9.88-5.61A12.001 12.001 0 0012.001 24z" />
+          </svg>
           <span>Supabase</span>
         </div>
         <div class="tech-logo">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="#339933"><path d="M11.859.043C11.895.029 11.93.014 11.966 0c.035.014.071.029.106.043L23.116 6.4c.148.084.238.24.238.41v10.38c0 .17-.09.326-.238.41l-11.044 6.358a.473.473 0 0 1-.464 0L.632 17.6a.48.48 0 0 1-.238-.41V6.81c0-.17.09-.326.238-.41zM2.87 15.352h2.247V8.58h.047l3.704 6.772h1.996V7.48H8.618v6.793h-.047L4.854 7.48H2.87zm9.646-7.872h2.72c2.534 0 4.148 1.488 4.148 3.966 0 2.441-1.614 3.967-4.148 3.967h-2.72zm2.25 6.302h.423c1.233 0 1.838-.726 1.838-2.336 0-1.638-.605-2.345-1.838-2.345h-.423z"/></svg>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="#339933">
+            <path
+              d="M11.859.043C11.895.029 11.93.014 11.966 0c.035.014.071.029.106.043L23.116 6.4c.148.084.238.24.238.41v10.38c0 .17-.09.326-.238.41l-11.044 6.358a.473.473 0 0 1-.464 0L.632 17.6a.48.48 0 0 1-.238-.41V6.81c0-.17.09-.326.238-.41zM2.87 15.352h2.247V8.58h.047l3.704 6.772h1.996V7.48H8.618v6.793h-.047L4.854 7.48H2.87zm9.646-7.872h2.72c2.534 0 4.148 1.488 4.148 3.966 0 2.441-1.614 3.967-4.148 3.967h-2.72zm2.25 6.302h.423c1.233 0 1.838-.726 1.838-2.336 0-1.638-.605-2.345-1.838-2.345h-.423z" />
+          </svg>
           <span>Node.js</span>
         </div>
       </div>
@@ -240,13 +283,19 @@
           <div class="feature-card-glow"></div>
           <div class="feature-icon-wrap">
             <div class="feature-icon feature-icon-notes">
-              <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><rect x="6" y="4" width="20" height="24" rx="3" stroke="currentColor" stroke-width="2"/><path d="M11 10h10M11 14h10M11 18h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="22" cy="22" r="6" fill="#25D366"/><path d="M20 22l1.5 1.5L24 20" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                <rect x="6" y="4" width="20" height="24" rx="3" stroke="currentColor" stroke-width="2" />
+                <path d="M11 10h10M11 14h10M11 18h6" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                <circle cx="22" cy="22" r="6" fill="#25D366" />
+                <path d="M20 22l1.5 1.5L24 20" stroke="white" stroke-width="1.5" stroke-linecap="round"
+                  stroke-linejoin="round" />
+              </svg>
             </div>
           </div>
           <h3 class="feature-title">Smart Note Capture</h3>
           <p class="feature-desc">
-            Drop a PDF into the group chat. Class Copilot extracts every word, 
-            converts it into searchable vectors, and makes it instantly queryable 
+            Drop a PDF into the group chat. Class Copilot extracts every word,
+            converts it into searchable vectors, and makes it instantly queryable
             by the entire class.
           </p>
           <div class="feature-tags">
@@ -261,12 +310,18 @@
           <div class="feature-card-glow"></div>
           <div class="feature-icon-wrap">
             <div class="feature-icon feature-icon-deadline">
-              <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="11" stroke="currentColor" stroke-width="2"/><path d="M16 10v6l4 3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="24" cy="8" r="5" fill="#F97316"/><text x="24" y="10.5" font-size="7" font-weight="700" fill="white" text-anchor="middle" font-family="Inter">!</text></svg>
+              <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                <circle cx="16" cy="16" r="11" stroke="currentColor" stroke-width="2" />
+                <path d="M16 10v6l4 3" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                  stroke-linejoin="round" />
+                <circle cx="24" cy="8" r="5" fill="#F97316" /><text x="24" y="10.5" font-size="7" font-weight="700"
+                  fill="white" text-anchor="middle" font-family="Inter">!</text>
+              </svg>
             </div>
           </div>
           <h3 class="feature-title">Auto Deadlines</h3>
           <p class="feature-desc">
-            Mention a deadline and the bot parses it, schedules a reminder, 
+            Mention a deadline and the bot parses it, schedules a reminder,
             and pings the group before it's too late.
           </p>
           <div class="feature-tags">
@@ -280,12 +335,20 @@
           <div class="feature-card-glow"></div>
           <div class="feature-icon-wrap">
             <div class="feature-icon feature-icon-qa">
-              <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><path d="M6 8a4 4 0 014-4h12a4 4 0 014 4v10a4 4 0 01-4 4H14l-5 4v-4H10a4 4 0 01-4-4V8z" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="13" r="1.5" fill="currentColor"/><circle cx="16" cy="13" r="1.5" fill="currentColor"/><circle cx="20" cy="13" r="1.5" fill="currentColor"/><circle cx="24" cy="6" r="5" fill="#8B5CF6"/><text x="24" y="8.5" font-size="7" font-weight="700" fill="white" text-anchor="middle" font-family="Inter">?</text></svg>
+              <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                <path d="M6 8a4 4 0 014-4h12a4 4 0 014 4v10a4 4 0 01-4 4H14l-5 4v-4H10a4 4 0 01-4-4V8z"
+                  stroke="currentColor" stroke-width="2" />
+                <circle cx="12" cy="13" r="1.5" fill="currentColor" />
+                <circle cx="16" cy="13" r="1.5" fill="currentColor" />
+                <circle cx="20" cy="13" r="1.5" fill="currentColor" />
+                <circle cx="24" cy="6" r="5" fill="#8B5CF6" /><text x="24" y="8.5" font-size="7" font-weight="700"
+                  fill="white" text-anchor="middle" font-family="Inter">?</text>
+              </svg>
             </div>
           </div>
           <h3 class="feature-title">RAG-Powered Q&A</h3>
           <p class="feature-desc">
-            Ask any question. The bot searches your class notes via vector similarity 
+            Ask any question. The bot searches your class notes via vector similarity
             and generates accurate answers grounded in your actual material.
           </p>
           <div class="feature-tags">
@@ -299,12 +362,17 @@
           <div class="feature-card-glow"></div>
           <div class="feature-icon-wrap">
             <div class="feature-icon feature-icon-shield">
-              <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><path d="M16 4L6 9v7c0 6.63 4.27 12.84 10 14.36C21.73 28.84 26 22.63 26 16V9L16 4z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M12 16l3 3 5-6" stroke="#25D366" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                <path d="M16 4L6 9v7c0 6.63 4.27 12.84 10 14.36C21.73 28.84 26 22.63 26 16V9L16 4z"
+                  stroke="currentColor" stroke-width="2" stroke-linejoin="round" />
+                <path d="M12 16l3 3 5-6" stroke="#25D366" stroke-width="2.5" stroke-linecap="round"
+                  stroke-linejoin="round" />
+              </svg>
             </div>
           </div>
           <h3 class="feature-title">Troll Shield</h3>
           <p class="feature-desc">
-            A dedicated 86M guardrail model intercepts every query before it hits 
+            A dedicated 86M guardrail model intercepts every query before it hits
             the expensive LLM — blocking jailbreaks and prompt injection attacks.
           </p>
           <div class="feature-tags">
@@ -322,7 +390,8 @@
       <div class="section-header animate-on-scroll">
         <span class="section-tag">How It Works</span>
         <h2 class="section-title">From Message to <span class="gradient-text">Magic</span> in Milliseconds</h2>
-        <p class="section-desc">Every message flows through an intelligent pipeline that classifies, processes, and responds — all within your WhatsApp group.</p>
+        <p class="section-desc">Every message flows through an intelligent pipeline that classifies, processes, and
+          responds — all within your WhatsApp group.</p>
       </div>
 
       <div class="pipeline">
@@ -342,7 +411,8 @@
           <div class="step-card">
             <div class="step-icon">🧠</div>
             <h3>AI Classification</h3>
-            <p>A hybrid Regex + Llama 8B classifier instantly sorts messages into NOTE, DEADLINE, QUESTION, or NOISE.</p>
+            <p>A hybrid Regex + Llama 8B classifier instantly sorts messages into NOTE, DEADLINE, QUESTION, or NOISE.
+            </p>
           </div>
         </div>
 
@@ -351,7 +421,8 @@
           <div class="step-card">
             <div class="step-icon">🛡️</div>
             <h3>Security Check</h3>
-            <p>Troll Shield's 86M parameter guardrail verifies the query is legitimate — blocking jailbreaks in real-time.</p>
+            <p>Troll Shield's 86M parameter guardrail verifies the query is legitimate — blocking jailbreaks in
+              real-time.</p>
           </div>
         </div>
 
@@ -382,7 +453,8 @@
       <div class="section-header animate-on-scroll">
         <span class="section-tag">Architecture</span>
         <h2 class="section-title">Built for <span class="gradient-text">Reliability</span></h2>
-        <p class="section-desc">Auto-failover across Groq + Gemini ensures your class is never left without an answer. If one is down, the other picks up — seamlessly.</p>
+        <p class="section-desc">Auto-failover across Groq + Gemini ensures your class is never left without an answer.
+          If one is down, the other picks up — seamlessly.</p>
       </div>
 
       <div class="arch-diagram animate-on-scroll">
@@ -468,7 +540,8 @@
 
       <div class="compare-table-wrap animate-on-scroll">
         <table class="compare-table">
-          <caption class="visually-hidden">Feature comparison: Class Copilot vs NotebookLM vs Canvas/Blackboard</caption>
+          <caption class="visually-hidden">Feature comparison: Class Copilot vs NotebookLM vs Canvas/Blackboard
+          </caption>
           <thead>
             <tr>
               <th scope="col"></th>
@@ -483,19 +556,22 @@
           <tbody>
             <tr>
               <th scope="row" class="compare-feature">Adoption Friction</th>
-              <td class="compare-highlight"><span class="compare-check" aria-label="Yes">✅</span> Zero — it's WhatsApp</td>
+              <td class="compare-highlight"><span class="compare-check" aria-label="Yes">✅</span> Zero — it's WhatsApp
+              </td>
               <td><span class="compare-x" aria-label="No">❌</span> Download & learn new app</td>
               <td><span class="compare-x" aria-label="No">❌</span> Clunky, separate login</td>
             </tr>
             <tr>
               <th scope="row" class="compare-feature">Multiplayer</th>
-              <td class="compare-highlight"><span class="compare-check" aria-label="Yes">✅</span> Entire class shares one brain</td>
+              <td class="compare-highlight"><span class="compare-check" aria-label="Yes">✅</span> Entire class shares
+                one brain</td>
               <td><span class="compare-x" aria-label="No">❌</span> Built for solo study</td>
               <td><span class="compare-mid" aria-label="Partial">⚠️</span> Heavily siloed by profs</td>
             </tr>
             <tr>
               <th scope="row" class="compare-feature">Deadline Tracking</th>
-              <td class="compare-highlight"><span class="compare-check" aria-label="Yes">✅</span> Auto-scheduled reminders</td>
+              <td class="compare-highlight"><span class="compare-check" aria-label="Yes">✅</span> Auto-scheduled
+                reminders</td>
               <td><span class="compare-x" aria-label="No">❌</span> Manual entry required</td>
               <td><span class="compare-x" aria-label="No">❌</span> Buried in PDFs</td>
             </tr>
@@ -573,7 +649,8 @@
       <div class="cta-card animate-on-scroll">
         <div class="cta-glow"></div>
         <h2 class="cta-title">Ready to Give Your Class <span class="gradient-text">Superpowers</span>?</h2>
-        <p class="cta-desc">Set up in 60 seconds. No signups. No downloads. Just your WhatsApp group + Class Copilot.</p>
+        <p class="cta-desc">Set up in 60 seconds. No signups. No downloads. Just your WhatsApp group + Class Copilot.
+        </p>
         <div class="cta-steps">
           <div class="cta-step">
             <div class="cta-step-num">1</div>
@@ -595,16 +672,28 @@
             <span>Study smarter</span>
           </div>
         </div>
-        <a href="/dashboard/notes" class="btn-dashboard" id="dashboard-cta">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="12" width="4" height="9" rx="1" fill="white" opacity="0.7"/><rect x="10" y="7" width="4" height="14" rx="1" fill="white" opacity="0.85"/><rect x="17" y="3" width="4" height="18" rx="1" fill="white"/><path d="M5 10l5-4 4 2 5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <a href="dashboard.html" class="btn-dashboard" id="dashboard-cta">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <rect x="3" y="12" width="4" height="9" rx="1" fill="white" opacity="0.7" />
+            <rect x="10" y="7" width="4" height="14" rx="1" fill="white" opacity="0.85" />
+            <rect x="17" y="3" width="4" height="18" rx="1" fill="white" />
+            <path d="M5 10l5-4 4 2 5-5" stroke="white" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round" />
+          </svg>
           <span>View Live Dashboard</span>
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round" />
+          </svg>
         </a>
         <div class="cta-or-divider"><span>or deploy it yourself</span></div>
         <div class="cta-code">
           <code>git clone https://github.com/Rishavroy-2006/Class-Copilot.git &amp;&amp; cd Class-Copilot &amp;&amp; npm install &amp;&amp; npm start</code>
           <button class="cta-copy" id="copy-btn" title="Copy to clipboard">
-            <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="6" y="6" width="10" height="10" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M12 6V4a2 2 0 00-2-2H4a2 2 0 00-2 2v6a2 2 0 002 2h2" stroke="currentColor" stroke-width="1.5"/></svg>
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+              <rect x="6" y="6" width="10" height="10" rx="2" stroke="currentColor" stroke-width="1.5" />
+              <path d="M12 6V4a2 2 0 00-2-2H4a2 2 0 00-2 2v6a2 2 0 002 2h2" stroke="currentColor" stroke-width="1.5" />
+            </svg>
           </button>
         </div>
       </div>
@@ -620,10 +709,12 @@
             <div class="logo-icon">
               <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
                 <rect width="32" height="32" rx="8" fill="url(#logoGrad2)" />
-                <path d="M16 6C10.48 6 6 10.18 6 15.31C6 17.97 7.23 20.37 9.21 22.03L8.1 25.5L11.82 24.3C13.11 24.87 14.52 25.18 16 25.18C21.52 25.18 26 21 26 15.87C26 10.74 21.52 6 16 6Z" fill="white" opacity="0.9"/>
-                <circle cx="12" cy="15" r="1.5" fill="url(#logoGrad2)"/>
-                <circle cx="16" cy="15" r="1.5" fill="url(#logoGrad2)"/>
-                <circle cx="20" cy="15" r="1.5" fill="url(#logoGrad2)"/>
+                <path
+                  d="M16 6C10.48 6 6 10.18 6 15.31C6 17.97 7.23 20.37 9.21 22.03L8.1 25.5L11.82 24.3C13.11 24.87 14.52 25.18 16 25.18C21.52 25.18 26 21 26 15.87C26 10.74 21.52 6 16 6Z"
+                  fill="white" opacity="0.9" />
+                <circle cx="12" cy="15" r="1.5" fill="url(#logoGrad2)" />
+                <circle cx="16" cy="15" r="1.5" fill="url(#logoGrad2)" />
+                <circle cx="20" cy="15" r="1.5" fill="url(#logoGrad2)" />
                 <defs>
                   <linearGradient id="logoGrad2" x1="0" y1="0" x2="32" y2="32">
                     <stop stop-color="#25D366" />
@@ -652,11 +743,12 @@
         </div>
         <div class="footer-links">
           <h4>Legal</h4>
-          <a href="https://github.com/Rishavroy-2006/Class-Copilot/blob/main/LICENSE" target="_blank" rel="noopener">MIT License</a>
+          <a href="https://github.com/Rishavroy-2006/Class-Copilot/blob/main/LICENSE" target="_blank" rel="noopener">MIT
+            License</a>
         </div>
       </div>
       <div class="footer-bottom">
-        <p>© 2026 Class Copilot. Open source under MIT License.</p>
+        <p>©️ 2026 Class Copilot. Open source under MIT License.</p>
       </div>
     </div>
   </footer>
@@ -666,4 +758,5 @@
 
   <script src="script.js" defer></script>
 </body>
+
 </html>
