@@ -186,8 +186,8 @@
   <!-- Simulation JS Logic -->
   <script>
     // Supabase config
-    const supabaseUrl = 'https://gzdlmcestfhlvdipklmp.supabase.co';
-    const supabaseKey = 'sb_publishable_YlvhAmCjsQUfsD7042cCvQ_GxrKj1eb';
+    const supabaseUrl = 'https://ahwnjcmbroxtxdygqlrq.supabase.co';
+    const supabaseKey = 'sb_publishable_Acncr8-nb6NiOgrw7fPMvg_FeVr2pWy';
     const HARDCODED_CHAT_ID = '120363419514236110@g.us';
 
     let supabaseClient = null;
@@ -421,7 +421,7 @@
     ];
 
     // Data Store & Mode
-    let isDemoMode = true;
+    let isDemoMode = false;
     let notesData = [];
     let deadlinesData = [];
     let predictionsData = [];
@@ -485,9 +485,8 @@
 
       // Live DB Mode
       if (!supabaseClient) {
-        showError('notes-container', 'Supabase Client failed to initialize. Check console.');
-        showError('deadlines-container', 'Supabase Client failed to initialize. Check console.');
-        showError('predictions-container', 'Supabase Client failed to initialize. Check console.');
+        console.warn('Supabase Client failed to initialize. Automatically falling back to Demo Mode.');
+        useDemoMode();
         return;
       }
 
@@ -514,7 +513,9 @@
           renderNotes();
         }
       } catch (err) {
-        showErrorWithDemoOption('notes-container', err.message);
+        console.warn('Live DB Notes fetch failed, falling back to Demo Mode:', err.message);
+        useDemoMode();
+        return;
       }
 
       // Fetch Deadlines
@@ -534,7 +535,9 @@
           renderDeadlines();
         }
       } catch (err) {
-        showErrorWithDemoOption('deadlines-container', err.message);
+        console.warn('Live DB Deadlines fetch failed, falling back to Demo Mode:', err.message);
+        useDemoMode();
+        return;
       }
 
       // Fetch Predictions
@@ -554,7 +557,9 @@
           renderPredictions();
         }
       } catch (err) {
-        showErrorWithDemoOption('predictions-container', err.message);
+        console.warn('Live DB Predictions fetch failed, falling back to Demo Mode:', err.message);
+        useDemoMode();
+        return;
       }
     }
 
