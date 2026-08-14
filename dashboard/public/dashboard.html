@@ -2,8 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Class Copilot — Live Dashboard Simulation</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, shrink-to-fit=no">
+  <meta name="theme-color" content="#050A0E">
+  <title>Class Copilot — Live Dashboard</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml" />
   
   <!-- Fonts -->
@@ -44,9 +45,14 @@
   </script>
 
   <style>
+    html {
+      overflow-x: hidden;
+      max-width: 100%;
+    }
     body {
       background-color: #050A0E;
       color: #F0F6FC;
+      overflow-x: hidden;
     }
     .glass-panel {
       background: rgba(16, 24, 32, 0.6);
@@ -70,9 +76,31 @@
     .animate-pulse-custom {
       animation: pulse 1.8s infinite ease-in-out;
     }
+    /* Scrollable tabs on mobile */
+    .tabs-scroll {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    .tabs-scroll::-webkit-scrollbar { display: none; }
+    .tabs-scroll nav { min-width: max-content; }
+    /* Hide demo mode toggle text on tiny screens */
+    @media (max-width: 400px) {
+      #toggle-datasource { display: none; }
+    }
+    /* Focus ring */
+    :focus-visible {
+      outline: 2px solid #25D366;
+      outline-offset: 2px;
+      border-radius: 4px;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .animate-pulse-custom { animation: none; }
+      * { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+    }
   </style>
 </head>
-<body className="min-h-screen flex flex-col font-sans">
+<body class="min-h-screen flex flex-col font-sans">
 
   <!-- Header -->
   <header class="sticky top-0 z-50 w-full border-b border-border-subtle bg-[#050A0E]/85 backdrop-blur-md">
@@ -88,18 +116,18 @@
         </span>
       </a>
 
-      <div class="flex items-center gap-3">
+      <div class="flex items-center gap-2 sm:gap-3">
         <!-- Data Source Status Indicator -->
-        <div id="demo-indicator" class="flex items-center gap-1.5 px-3 py-1.5 bg-wa-green/10 border border-wa-green/20 text-wa-green rounded-full text-[11px] font-semibold tracking-wide shadow-[0_0_15px_rgba(37,211,102,0.05)]">
+        <div id="demo-indicator" class="flex items-center gap-1.5 px-2.5 py-1.5 bg-wa-green/10 border border-wa-green/20 text-wa-green rounded-full text-[10px] sm:text-[11px] font-semibold tracking-wide shadow-[0_0_15px_rgba(37,211,102,0.05)]">
           <span class="w-1.5 h-1.5 rounded-full bg-wa-green animate-ping"></span>
-          <span>Live Database</span>
+          <span id="demo-indicator-text">Live Database</span>
         </div>
         
-        <button id="toggle-datasource" onclick="toggleDataSource()" class="text-xs font-semibold text-text-primary hover:text-orange-400 border border-border-subtle hover:border-orange-500/30 px-3.5 py-1.5 rounded-full transition-all duration-300 bg-white/2">
-          Use Demo Mode
+        <button id="toggle-datasource" onclick="toggleDataSource()" class="text-xs font-semibold text-text-primary hover:text-orange-400 border border-border-subtle hover:border-orange-500/30 px-3 py-1.5 rounded-full transition-all duration-300 bg-white/2 whitespace-nowrap">
+          Demo Mode
         </button>
 
-        <a href="index.html" class="text-xs font-semibold text-text-secondary hover:text-text-primary border border-border-subtle hover:border-white/10 px-3.5 py-1.5 rounded-full transition-all duration-300">
+        <a href="/" aria-label="Back to home" class="text-xs font-semibold text-text-secondary hover:text-text-primary border border-border-subtle hover:border-white/10 px-3 py-1.5 rounded-full transition-all duration-300 whitespace-nowrap">
           ← Back
         </a>
       </div>
@@ -108,18 +136,18 @@
 
   <!-- Tabs Navigation -->
   <div class="w-full bg-bg-secondary/40 border-b border-border-subtle py-2">
-    <div class="max-w-6xl mx-auto px-4">
-      <nav class="flex space-x-1" aria-label="Tabs">
-        <button id="tab-notes" onclick="switchTab('notes')" class="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 bg-wa-green/10 text-wa-green border border-wa-green/20 shadow-[0_0_20px_rgba(37,211,102,0.06)]">
-          <span>📚</span>
+    <div class="tabs-scroll max-w-6xl mx-auto px-4">
+      <nav class="flex space-x-1" role="tablist" aria-label="Dashboard sections">
+        <button id="tab-notes" role="tab" aria-selected="true" aria-controls="view-notes" onclick="switchTab('notes')" class="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 bg-wa-green/10 text-wa-green border border-wa-green/20 shadow-[0_0_20px_rgba(37,211,102,0.06)] whitespace-nowrap">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
           <span>Class Notes</span>
         </button>
-        <button id="tab-deadlines" onclick="switchTab('deadlines')" class="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 text-text-secondary hover:text-text-primary hover:bg-white/5 border border-transparent">
-          <span>⏰</span>
+        <button id="tab-deadlines" role="tab" aria-selected="false" aria-controls="view-deadlines" onclick="switchTab('deadlines')" class="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 text-text-secondary hover:text-text-primary hover:bg-white/5 border border-transparent whitespace-nowrap">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
           <span>Deadlines</span>
         </button>
-        <button id="tab-predictions" onclick="switchTab('predictions')" class="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 text-text-secondary hover:text-text-primary hover:bg-white/5 border border-transparent">
-          <span>🔮</span>
+        <button id="tab-predictions" role="tab" aria-selected="false" aria-controls="view-predictions" onclick="switchTab('predictions')" class="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 text-text-secondary hover:text-text-primary hover:bg-white/5 border border-transparent whitespace-nowrap">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
           <span>Exam Predictions</span>
         </button>
       </nav>
@@ -179,7 +207,7 @@
   <!-- Footer -->
   <footer class="w-full py-6 border-t border-border-subtle bg-bg-primary text-center text-xs text-text-muted mt-12">
     <div class="max-w-6xl mx-auto px-4">
-      <p>© 2026 Class Copilot. Simulated Live Hackathon Dashboard.</p>
+      <p>© 2026 Class Copilot. Built for students, powered by AI.</p>
     </div>
   </footer>
 
@@ -199,16 +227,19 @@
 
     // Switch view tabs
     function switchTab(tabName) {
-      // Manage tab buttons
       ['notes', 'deadlines', 'predictions'].forEach(name => {
         const btn = document.getElementById(`tab-${name}`);
         const view = document.getElementById(`view-${name}`);
-        
-        if (name === tabName) {
-          btn.className = "flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 bg-wa-green/10 text-wa-green border border-wa-green/20 shadow-[0_0_20px_rgba(37,211,102,0.06)]";
+        const isActive = name === tabName;
+
+        // ARIA state
+        btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
+
+        if (isActive) {
+          btn.className = "flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 bg-wa-green/10 text-wa-green border border-wa-green/20 shadow-[0_0_20px_rgba(37,211,102,0.06)] whitespace-nowrap";
           view.classList.remove('hidden');
         } else {
-          btn.className = "flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 text-text-secondary hover:text-text-primary hover:bg-white/5 border border-transparent";
+          btn.className = "flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 text-text-secondary hover:text-text-primary hover:bg-white/5 border border-transparent whitespace-nowrap";
           view.classList.add('hidden');
         }
       });
@@ -435,15 +466,15 @@
       const toggleBtn = document.getElementById('toggle-datasource');
 
       if (isDemoMode) {
-        indicator.className = "flex items-center gap-1.5 px-3 py-1.5 bg-orange-500/10 border border-orange-500/20 text-orange-400 rounded-full text-[11px] font-semibold tracking-wide shadow-[0_0_15px_rgba(249,115,22,0.05)]";
-        indicator.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse"></span><span>Demo Mode</span>`;
-        toggleBtn.innerText = "Connect Live DB";
-        toggleBtn.className = "text-xs font-semibold text-text-primary hover:text-wa-green border border-border-subtle hover:border-wa-green/30 px-3.5 py-1.5 rounded-full transition-all duration-300 bg-white/2";
+        indicator.className = "flex items-center gap-1.5 px-2.5 py-1.5 bg-orange-500/10 border border-orange-500/20 text-orange-400 rounded-full text-[10px] sm:text-[11px] font-semibold tracking-wide shadow-[0_0_15px_rgba(249,115,22,0.05)]";
+        indicator.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse"></span><span id="demo-indicator-text">Demo Mode</span>`;
+        toggleBtn.innerText = "Live DB";
+        toggleBtn.className = "text-xs font-semibold text-text-primary hover:text-wa-green border border-border-subtle hover:border-wa-green/30 px-3 py-1.5 rounded-full transition-all duration-300 bg-white/2 whitespace-nowrap";
       } else {
-        indicator.className = "flex items-center gap-1.5 px-3 py-1.5 bg-wa-green/10 border border-wa-green/20 text-wa-green rounded-full text-[11px] font-semibold tracking-wide shadow-[0_0_15px_rgba(37,211,102,0.05)]";
-        indicator.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-wa-green animate-ping"></span><span>Live Database</span>`;
-        toggleBtn.innerText = "Use Demo Mode";
-        toggleBtn.className = "text-xs font-semibold text-text-primary hover:text-orange-400 border border-border-subtle hover:border-orange-500/30 px-3.5 py-1.5 rounded-full transition-all duration-300 bg-white/2";
+        indicator.className = "flex items-center gap-1.5 px-2.5 py-1.5 bg-wa-green/10 border border-wa-green/20 text-wa-green rounded-full text-[10px] sm:text-[11px] font-semibold tracking-wide shadow-[0_0_15px_rgba(37,211,102,0.05)]";
+        indicator.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-wa-green animate-ping"></span><span id="demo-indicator-text">Live Database</span>`;
+        toggleBtn.innerText = "Demo Mode";
+        toggleBtn.className = "text-xs font-semibold text-text-primary hover:text-orange-400 border border-border-subtle hover:border-orange-500/30 px-3 py-1.5 rounded-full transition-all duration-300 bg-white/2 whitespace-nowrap";
       }
     }
 

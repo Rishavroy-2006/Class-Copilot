@@ -6,6 +6,14 @@ const nextConfig = {
         source: '/',
         destination: '/index.html',
       },
+      {
+        source: '/connect',
+        destination: '/connect.html',
+      },
+      {
+        source: '/dashboard',
+        destination: '/dashboard.html',
+      },
     ];
   },
 };

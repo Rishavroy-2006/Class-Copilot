@@ -1791,6 +1791,32 @@ img {
   width: 6px;
 }
 
+/* ===== Prefers Reduced Motion ===== */
+@media (prefers-reduced-motion: reduce) {
+  .animate-on-scroll {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  .bubble {
+    animation: none;
+  }
+  .badge-dot {
+    animation: none;
+  }
+  .btn-primary::before {
+    transition: none;
+  }
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+
+
 ::-webkit-scrollbar-track {
   background: var(--bg-primary);
 }

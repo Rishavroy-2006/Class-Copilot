@@ -3,8 +3,9 @@
 
 <head>
   <meta charset="utf-8" />
-  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-  <title>Class Copilot - AI Study Assistant</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, shrink-to-fit=no" />
+  <meta name="theme-color" content="#121414" />
+  <title>Connect to Class Copilot — AI Study Assistant</title>
 <link rel="icon" href="favicon.svg" type="image/svg+xml" />
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -161,6 +162,17 @@
       color: #25D366;
       border-color: rgba(37, 211, 102, 0.25);
     }
+
+    html {
+      overflow-x: hidden;
+      max-width: 100%;
+    }
+    body {
+      overflow-x: hidden;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      * { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+    }
   </style>
 </head>
 
@@ -194,7 +206,7 @@
   </nav>
 
   <!-- Main Content -->
-  <main class="relative z-10 max-w-[1200px] mx-auto px-6 pt-20 pb-20 space-y-[120px]">
+  <main class="relative z-10 max-w-[1200px] mx-auto px-4 sm:px-6 pt-24 pb-16 space-y-16 sm:space-y-24 lg:space-y-[120px]">
     <!-- Hero Section -->
     <section class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
       <div class="space-y-6">
@@ -206,14 +218,16 @@
           Your AI study assistant, right inside WhatsApp...
         </p>
       </div>
-      <div class="glass-panel rounded-xl p-8 flex flex-col items-center justify-center relative overflow-hidden group">
+      <div class="glass-panel rounded-xl p-6 sm:p-8 flex flex-col items-center justify-center relative overflow-hidden group max-w-sm md:max-w-none mx-auto w-full">
         <div
           class="absolute inset-0 bg-gradient-to-br from-primary-container/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500">
         </div>
-        <div class="bg-white rounded-lg p-6 mb-6 w-64 shadow-2xl relative z-10">
+        <div class="bg-white rounded-lg p-4 sm:p-6 mb-6 w-48 sm:w-64 shadow-2xl relative z-10">
           <div class="flex items-center justify-center gap-2 mb-4 text-background font-medium text-sm">
-            <img class="w-6 h-6 rounded-full bg-secondary-fixed" alt="Profile avatar" width="24" height="24"
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuAtFcmIONy7I5zqUxG-r9kyFPUXiimN6WvjCea41zLwS4kBZdRBa-QBHWdLvihAkMG_eZGHAreP4sUT7Q4p13FwqxREdQ9sz4BQfqBVEIsIvzTKvXBeRMlJ-96UKC1Dkl4w48s0rBDVE-uumpUcZDa3qSVQK2hewMwUSlHKdvrZ0XaSRCT-wPPvdZGH_1dkQ3TRm8ruQqJel8PdjMejIJ7ozgT-MXNWaMsReIQ_OVwy6NCilt3pnfGl" />
+            <svg class="w-6 h-6 rounded-full bg-secondary-fixed" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 12C14.2091 12 16 10.2091 16 8C16 5.79086 14.2091 4 12 4C9.79086 4 8 5.79086 8 8C8 10.2091 9.79086 12 12 12Z" fill="#128C7E"/>
+              <path d="M12 14C9.33 14 4 15.33 4 18V20H20V18C20 15.33 14.67 14 12 14Z" fill="#128C7E"/>
+            </svg>
             University Group Demo
           </div>
           <img class="w-full aspect-square bg-gray-200 rounded" alt="WhatsApp QR code" src="whatsapp-qr.webp" srcset="whatsapp-qr-sm.webp 330w, whatsapp-qr.webp 661w" sizes="(max-width: 400px) 330px, 661px" width="661" height="661" />
@@ -330,7 +344,7 @@
   </main>
   <!-- Footer -->
   <footer
-    class="w-full pt-20 pb-10 bg-transparent text-primary-container font-body-md text-body-md flex flex-col items-center gap-6 max-w-7xl mx-auto px-8 relative z-10 border-t border-white/5">
+    class="w-full pt-10 pb-8 bg-transparent text-primary-container font-body-md text-body-md flex flex-col items-center gap-4 max-w-7xl mx-auto px-4 sm:px-8 relative z-10 border-t border-white/5">
     <h2 class="font-headline-md text-headline-md text-on-background font-bold text-center mb-4">Built for the classroom
     </h2>
     <div class="flex flex-wrap justify-center gap-3 mb-4">
