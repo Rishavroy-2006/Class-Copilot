@@ -87,7 +87,7 @@ async function fastExtractJson(prompt) {
  * RAG Question Answering
  * Priority Logic:
  * - If contextLength > 4000 OR Groq unavailable -> Try Gemini Flash Lite first (huge context window)
- * - Otherwise -> Try Groq llama-3.3-70b-versatile first
+ * - Otherwise -> Try Groq openai/gpt-oss-120b first
  * - Automatic Failover on error/rate limit
  */
 async function generateAnswer(prompt, contextLength = 0) {
@@ -99,18 +99,18 @@ async function generateAnswer(prompt, contextLength = 0) {
       const response = await callGemini(prompt);
       return response.text;
     } catch (err) {
-      console.warn('[llmRouter] Gemini failed entirely, attempting failover to Groq 70B...', err.message);
-      if (groq) return await callGroq70B(prompt);
+      console.warn('[llmRouter] Gemini failed entirely, attempting failover to Groq 120B...', err.message);
+      if (groq) return await callGroq120B(prompt);
       throw err;
     }
   }
 
   if (groq) {
-    console.log(`[llmRouter] Routing to Groq 70B (Context Length: ${contextLength})`);
+    console.log(`[llmRouter] Routing to Groq 120B (Context Length: ${contextLength})`);
     try {
-      return await callGroq70B(prompt);
+      return await callGroq120B(prompt);
     } catch (err) {
-      console.warn('[llmRouter] Groq 70B failed/rate-limited, attempting failover to Gemini...', err.message);
+      console.warn('[llmRouter] Groq 120B failed/rate-limited, attempting failover to Gemini...', err.message);
       if (ai) {
         const response = await callGemini(prompt);
         return response.text;
@@ -147,9 +147,9 @@ async function embedText(text) {
   }
 }
 
-async function callGroq70B(prompt) {
+async function callGroq120B(prompt) {
   const completion = await groq.chat.completions.create({
-    model: 'llama-3.3-70b-versatile',
+    model: 'openai/gpt-oss-120b',
     messages: [{ role: 'user', content: prompt }],
     temperature: 0.1,
     max_tokens: 400
@@ -157,9 +157,9 @@ async function callGroq70B(prompt) {
   return completion.choices[0]?.message?.content;
 }
 
-async function callGroq70BJson(prompt) {
+async function callGroq120BJson(prompt) {
   const completion = await groq.chat.completions.create({
-    model: 'llama-3.3-70b-versatile',
+    model: 'openai/gpt-oss-120b',
     messages: [{ role: 'user', content: prompt }],
     temperature: 0.1,
     max_tokens: 1000,
@@ -181,9 +181,9 @@ async function generatePredictionJson(prompt, contextLength = 0) {
       const response = await callGemini(prompt, { responseMimeType: 'application/json' });
       return JSON.parse(response.text);
     } catch (err) {
-      console.warn('[llmRouter] Gemini prediction failed entirely, attempting failover to Groq 70B...', err.message);
+      console.warn('[llmRouter] Gemini prediction failed entirely, attempting failover to Groq 120B...', err.message);
       if (groq) {
-        const text = await callGroq70BJson(prompt);
+        const text = await callGroq120BJson(prompt);
         return JSON.parse(text);
       }
       throw err;
@@ -191,12 +191,12 @@ async function generatePredictionJson(prompt, contextLength = 0) {
   }
 
   if (groq) {
-    console.log(`[llmRouter] Routing PYQ Prediction to Groq 70B (Context Length: ${contextLength})`);
+    console.log(`[llmRouter] Routing PYQ Prediction to Groq 120B (Context Length: ${contextLength})`);
     try {
-      const text = await callGroq70BJson(prompt);
+      const text = await callGroq120BJson(prompt);
       return JSON.parse(text);
     } catch (err) {
-      console.warn('[llmRouter] Groq 70B prediction failed/rate-limited, attempting failover to Gemini...', err.message);
+      console.warn('[llmRouter] Groq 120B prediction failed/rate-limited, attempting failover to Gemini...', err.message);
       if (ai) {
         const response = await callGemini(prompt, { responseMimeType: 'application/json' });
         return JSON.parse(response.text);
@@ -221,7 +221,7 @@ Reply ONLY with the bullet points.`;
 
   if (groq) {
     try {
-      return await callGroq70B(prompt);
+      return await callGroq120B(prompt);
     } catch (err) {
       console.warn('[llmRouter] Groq summary failed, falling back to Gemini:', err.message);
     }

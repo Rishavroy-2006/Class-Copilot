@@ -144,7 +144,7 @@ npm run dev
 
 | Variable | Required | Default | Description |
 |---|---|---|---|
-| `GROQ_API_KEY` | Yes | — | For fast classification and heavy reasoning (`llama-3.3-70b-versatile`) |
+| `GROQ_API_KEY` | Yes | — | For fast classification and heavy reasoning (`openai/gpt-oss-120b`) |
 | `GEMINI_API_KEY` | Yes | — | Triple-redundant fallback for massive contexts (`gemini-3.5-flash-lite`) |
 | `SUPABASE_URL` | Yes | — | URL to your Supabase project |
 | `SUPABASE_KEY` | Yes | — | `service_role` key to bypass RLS in the backend |
@@ -251,7 +251,7 @@ What to expect:
 - **Language:** JavaScript (Node.js 18+), TypeScript (React/Next.js)
 - **Bridge:** `@whiskeysockets/baileys`
 - **Database:** Supabase (PostgreSQL + pgvector)
-- **Primary LLM:** Groq (`llama-3.3-70b`, `llama-3.1-8b`, `prompt-guard`)
+- **Primary LLM:** Groq (`openai/gpt-oss-120b`, `llama-3.1-8b`, `prompt-guard`)
 - **Fallback LLM:** Google Gemini (`gemini-3.5-flash-lite`)
 
 This project is open-sourced under the MIT License — see [LICENSE](./LICENSE).
