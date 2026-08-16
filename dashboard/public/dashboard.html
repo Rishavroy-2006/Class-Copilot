@@ -119,7 +119,7 @@
       <div class="flex items-center gap-2 sm:gap-3">
         <!-- Data Source Status Indicator -->
         <div id="demo-indicator" class="flex items-center gap-1.5 px-2.5 py-1.5 bg-wa-green/10 border border-wa-green/20 text-wa-green rounded-full text-[10px] sm:text-[11px] font-semibold tracking-wide shadow-[0_0_15px_rgba(37,211,102,0.05)]">
-          <span class="w-1.5 h-1.5 rounded-full bg-wa-green flex-shrink-0 animate-ping"></span>
+          <span class="w-1.5 h-1.5 rounded-full bg-wa-green flex-shrink-0"></span>
           <span id="demo-indicator-text" class="hidden sm:inline">Live Database</span>
         </div>
         
@@ -403,7 +403,7 @@
           <h3 class="font-display font-bold text-xl text-text-primary mb-3">${details.title}</h3>
           <p class="text-sm text-text-secondary leading-relaxed mb-6">${details.desc}</p>
           <div class="inline-flex items-center gap-2 px-4 py-2 bg-wa-green/10 border border-wa-green/20 rounded-full text-xs font-medium text-wa-green">
-            <span class="w-2 h-2 rounded-full bg-wa-green animate-ping"></span>
+            <span class="w-2 h-2 rounded-full bg-wa-green"></span>
             ${details.tag}
           </div>
         </div>`;
@@ -529,12 +529,12 @@
 
       if (isDemoMode) {
         indicator.className = "flex items-center gap-1.5 px-2.5 py-1.5 bg-orange-500/10 border border-orange-500/20 text-orange-400 rounded-full text-[10px] sm:text-[11px] font-semibold tracking-wide shadow-[0_0_15px_rgba(249,115,22,0.05)]";
-        indicator.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-orange-500 flex-shrink-0 animate-pulse"></span><span id="demo-indicator-text" class="hidden sm:inline">Demo Mode</span>`;
+        indicator.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-orange-500 flex-shrink-0"></span><span id="demo-indicator-text" class="hidden sm:inline">Demo Mode</span>`;
         toggleBtn.innerText = "Live DB";
         toggleBtn.className = "text-xs font-semibold text-text-primary hover:text-wa-green border border-border-subtle hover:border-wa-green/30 px-3 py-1.5 rounded-full transition-all duration-300 bg-white/2 whitespace-nowrap";
       } else {
         indicator.className = "flex items-center gap-1.5 px-2.5 py-1.5 bg-wa-green/10 border border-wa-green/20 text-wa-green rounded-full text-[10px] sm:text-[11px] font-semibold tracking-wide shadow-[0_0_15px_rgba(37,211,102,0.05)]";
-        indicator.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-wa-green flex-shrink-0 animate-ping"></span><span id="demo-indicator-text" class="hidden sm:inline">Live Database</span>`;
+        indicator.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-wa-green flex-shrink-0"></span><span id="demo-indicator-text" class="hidden sm:inline">Live Database</span>`;
         toggleBtn.innerText = "Demo Mode";
         toggleBtn.className = "text-xs font-semibold text-text-primary hover:text-orange-400 border border-border-subtle hover:border-orange-500/30 px-3 py-1.5 rounded-full transition-all duration-300 bg-white/2 whitespace-nowrap";
       }

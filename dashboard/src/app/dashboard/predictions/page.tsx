@@ -100,7 +100,7 @@ export default function PredictionsPage() {
           To generate exam predictions, share at least 2 past exam papers (PDFs) for the same subject in the WhatsApp group, then tag me with: <code className="text-wa-green font-mono text-xs">"predict [subject]"</code>.
         </p>
         <div className="inline-flex items-center gap-2 px-4 py-2 bg-wa-green/10 border border-wa-green/20 rounded-full text-xs font-medium text-wa-green">
-          <span className="w-2 h-2 rounded-full bg-wa-green animate-ping"></span>
+          <span className="w-2 h-2 rounded-full bg-wa-green"></span>
           Ready for Exam Papers
         </div>
       </div>

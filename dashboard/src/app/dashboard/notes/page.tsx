@@ -122,7 +122,7 @@ export default function NotesPage() {
           Waiting on your class's first note... Share a syllabus, study guide, or slide PDF in the WhatsApp group to get started.
         </p>
         <div className="inline-flex items-center gap-2 px-4 py-2 bg-wa-green/10 border border-wa-green/20 rounded-full text-xs font-medium text-wa-green">
-          <span className="w-2 h-2 rounded-full bg-wa-green animate-ping"></span>
+          <span className="w-2 h-2 rounded-full bg-wa-green"></span>
           Listening in the WhatsApp Group
         </div>
       </div>

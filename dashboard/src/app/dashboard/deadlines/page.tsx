@@ -155,7 +155,7 @@ export default function DeadlinesPage() {
           Enjoy the downtime! The board will populate automatically as soon as a student mentions an assignment, quiz, or exam deadline in the WhatsApp group.
         </p>
         <div className="inline-flex items-center gap-2 px-4 py-2 bg-wa-green/10 border border-wa-green/20 rounded-full text-xs font-medium text-wa-green">
-          <span className="w-2 h-2 rounded-full bg-wa-green animate-ping"></span>
+          <span className="w-2 h-2 rounded-full bg-wa-green"></span>
           Listening for Deadlines
         </div>
       </div>

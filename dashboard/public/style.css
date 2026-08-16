@@ -254,7 +254,7 @@ img {
 .nav-links {
   display: flex;
   align-items: center;
-  gap: 32px;
+  gap: 8px;
 }
 
 .nav-link {
@@ -263,13 +263,14 @@ img {
   color: var(--text-secondary);
   transition: color 0.3s;
   position: relative;
+  padding: 12px;
 }
 
 .nav-link::after {
   content: '';
   position: absolute;
-  bottom: -4px;
-  left: 0;
+  bottom: 8px;
+  left: 12px;
   width: 0;
   height: 2px;
   background: var(--wa-green);
@@ -282,14 +283,14 @@ img {
 }
 
 .nav-link:hover::after {
-  width: 100%;
+  width: calc(100% - 24px);
 }
 
 .nav-cta {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 10px 20px;
+  padding: 12px 24px;
   background: var(--gradient-green);
   border-radius: var(--radius-full);
   font-size: 14px;
@@ -975,7 +976,7 @@ img {
 }
 
 .pipeline-step:hover .step-number {
-  background: rgba(37, 211, 102, 0.1);
+  background: linear-gradient(rgba(37, 211, 102, 0.1), rgba(37, 211, 102, 0.1)), var(--bg-secondary);
   border-color: var(--wa-green);
   transform: scale(1.1);
   box-shadow: 0 0 30px rgba(37, 211, 102, 0.2);
@@ -1161,6 +1162,7 @@ img {
 
 .compare-table-wrap {
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
   border-radius: var(--radius-lg);
   border: 1px solid var(--border-subtle);
 }
@@ -1303,9 +1305,22 @@ img {
 }
 
 .roadmap-card li {
-  font-size: 14px;
+  margin-bottom: 8px;
   color: var(--text-secondary);
+  font-size: 14px;
   line-height: 1.6;
+}
+
+.roadmap-list-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.roadmap-icon {
+  margin-top: 2px;
+  color: var(--wa-green);
+  flex-shrink: 0;
 }
 
 /* ===== CTA SECTION ===== */
