@@ -40,7 +40,8 @@ Return JSON in format: {"subject": "Subject Name", "year": "2023 or unknown"}`;
     }
     const buffer = Buffer.concat(chunks);
     const pdfData = await pdfParse(buffer);
-    rawText = pdfData.text.trim();
+    const cleanText = pdfData.text.replace(/\S{50,}/g, '');
+    rawText = cleanText.trim();
   } catch (err) {
     console.error('[pyqHandler] Failed to parse PDF:', err);
     await sock.sendMessage(chatId, { text: `🤖 *Class Copilot AI*\n\nFailed to extract text from the provided PDF.` }, { quoted: msg });

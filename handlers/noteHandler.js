@@ -73,7 +73,8 @@ async function handleNote(msg, text, chatId, sock) {
 
         try {
           const pdfData = await pdfParse(buffer);
-          contentToSave = `[Document: ${docMessage.fileName || 'Untitled PDF'}]\\n` + (pdfData.text.trim() || '[Empty PDF]');
+          const cleanText = pdfData.text.replace(/\S{50,}/g, '');
+          contentToSave = `[Document: ${docMessage.fileName || 'Untitled PDF'}]\n` + (cleanText.trim() || '[Empty PDF]');
         } catch (parseErr) {
           console.error('[noteHandler] Failed to parse PDF:', parseErr);
           contentToSave = '[Unparseable PDF]';
