@@ -179,8 +179,15 @@ async function startBridge() {
 }
 
 const PORT = process.env.PORT || 10000;
-const server = http.createServer((req, res) => {
+const server = http.createServer(async (req, res) => {
   if (req.url === '/health' && req.method === 'GET') {
+    // Ping Supabase to prevent the free tier project from pausing
+    try {
+      await supabase.from('notes').select('id').limit(1);
+    } catch (err) {
+      console.error('[system] Supabase keep-alive ping failed:', err);
+    }
+
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ 
       status: 'ok', 
