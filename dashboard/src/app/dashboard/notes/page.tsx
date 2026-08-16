@@ -17,6 +17,7 @@ export default function NotesPage() {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [openSubjects, setOpenSubjects] = useState<Record<string, boolean>>({});
+  const [selectedNote, setSelectedNote] = useState<Note | null>(null);
 
   useEffect(() => {
     async function fetchNotes() {
@@ -165,7 +166,7 @@ export default function NotesPage() {
 
               {/* Accordion Body */}
               {isOpen && (
-                <div className="p-6 space-y-6 bg-bg-secondary/10">
+                <div className="p-4 sm:p-6 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6 bg-bg-secondary/10">
                   {subjectNotes.map((note) => (
                     <div
                       key={note.id}
@@ -179,13 +180,13 @@ export default function NotesPage() {
                           PDF Note
                         </span>
                       </div>
-                      <p className="text-sm text-text-secondary leading-relaxed whitespace-pre-wrap font-sans">
+                      <p className="text-sm text-text-secondary leading-relaxed whitespace-pre-wrap font-sans break-words">
                         {note.content.length > 500 ? `${note.content.substring(0, 500)}...` : note.content}
                       </p>
                       {note.content.length > 500 && (
                         <div className="mt-4 pt-3 border-t border-border-subtle/30 flex justify-end">
                           <button
-                            onClick={() => alert(note.content)}
+                            onClick={() => setSelectedNote(note)}
                             className="text-xs font-bold text-wa-green hover:underline cursor-pointer flex items-center gap-1"
                           >
                             Read Full Note ↗
@@ -200,6 +201,32 @@ export default function NotesPage() {
           );
         })}
       </div>
+
+      {/* Note Modal */}
+      {selectedNote && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
+          <div className="glass-panel w-full max-w-2xl max-h-[85vh] flex flex-col border border-border-subtle/50 shadow-2xl relative overflow-hidden">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-4 border-b border-border-subtle/30 bg-bg-secondary/50">
+              <h3 className="font-display font-bold text-lg text-text-primary">
+                {selectedNote.subject} Note
+              </h3>
+              <button
+                onClick={() => setSelectedNote(null)}
+                className="w-8 h-8 flex items-center justify-center rounded-full bg-white/5 hover:bg-white/10 text-text-secondary hover:text-white transition-colors"
+              >
+                ✕
+              </button>
+            </div>
+            {/* Modal Body */}
+            <div className="p-4 sm:p-6 overflow-y-auto">
+              <p className="text-sm text-text-secondary leading-relaxed whitespace-pre-wrap font-sans break-words">
+                {selectedNote.content}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -119,8 +119,8 @@
       <div class="flex items-center gap-2 sm:gap-3">
         <!-- Data Source Status Indicator -->
         <div id="demo-indicator" class="flex items-center gap-1.5 px-2.5 py-1.5 bg-wa-green/10 border border-wa-green/20 text-wa-green rounded-full text-[10px] sm:text-[11px] font-semibold tracking-wide shadow-[0_0_15px_rgba(37,211,102,0.05)]">
-          <span class="w-1.5 h-1.5 rounded-full bg-wa-green animate-ping"></span>
-          <span id="demo-indicator-text">Live Database</span>
+          <span class="w-1.5 h-1.5 rounded-full bg-wa-green flex-shrink-0 animate-ping"></span>
+          <span id="demo-indicator-text" class="hidden sm:inline">Live Database</span>
         </div>
         
         <button id="toggle-datasource" onclick="toggleDataSource()" class="text-xs font-semibold text-text-primary hover:text-orange-400 border border-border-subtle hover:border-orange-500/30 px-3 py-1.5 rounded-full transition-all duration-300 bg-white/2 whitespace-nowrap">
@@ -203,6 +203,23 @@
     </div>
 
   </main>
+
+  <!-- Note Modal -->
+  <div id="note-modal" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm hidden opacity-0 transition-opacity duration-300">
+    <div class="glass-panel w-full max-w-2xl max-h-[85vh] flex flex-col border border-border-subtle/50 shadow-2xl relative overflow-hidden rounded-2xl transform scale-95 transition-transform duration-300" id="note-modal-panel">
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between p-4 border-b border-border-subtle/30 bg-[#0A1118]/50">
+        <h3 id="note-modal-subject" class="font-display font-bold text-lg text-text-primary">Note</h3>
+        <button onclick="closeNoteModal()" class="w-8 h-8 flex items-center justify-center rounded-full bg-white/5 hover:bg-white/10 text-text-secondary hover:text-white transition-colors">
+          ✕
+        </button>
+      </div>
+      <!-- Modal Body -->
+      <div class="p-6 overflow-y-auto">
+        <p id="note-modal-content" class="text-sm text-text-secondary leading-relaxed whitespace-pre-wrap font-sans break-words"></p>
+      </div>
+    </div>
+  </div>
 
   <!-- Footer -->
   <footer class="w-full py-6 border-t border-border-subtle bg-bg-primary text-center text-xs text-text-muted mt-12">
@@ -291,6 +308,35 @@
         }
       }
       container.innerHTML = skeletonHtml;
+    }
+
+    // Modal Functions
+    function openNoteModal(subject, content) {
+      document.getElementById('note-modal-subject').innerText = subject + ' Note';
+      document.getElementById('note-modal-content').innerText = content;
+      
+      const modal = document.getElementById('note-modal');
+      const panel = document.getElementById('note-modal-panel');
+      
+      modal.classList.remove('hidden');
+      // trigger reflow
+      void modal.offsetWidth;
+      modal.classList.remove('opacity-0');
+      panel.classList.remove('scale-95');
+      document.body.style.overflow = 'hidden'; // prevent bg scrolling
+    }
+
+    function closeNoteModal() {
+      const modal = document.getElementById('note-modal');
+      const panel = document.getElementById('note-modal-panel');
+      
+      modal.classList.add('opacity-0');
+      panel.classList.add('scale-95');
+      
+      setTimeout(() => {
+        modal.classList.add('hidden');
+        document.body.style.overflow = '';
+      }, 300);
     }
 
     // Error Panels
@@ -467,12 +513,12 @@
 
       if (isDemoMode) {
         indicator.className = "flex items-center gap-1.5 px-2.5 py-1.5 bg-orange-500/10 border border-orange-500/20 text-orange-400 rounded-full text-[10px] sm:text-[11px] font-semibold tracking-wide shadow-[0_0_15px_rgba(249,115,22,0.05)]";
-        indicator.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse"></span><span id="demo-indicator-text">Demo Mode</span>`;
+        indicator.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-orange-500 flex-shrink-0 animate-pulse"></span><span id="demo-indicator-text" class="hidden sm:inline">Demo Mode</span>`;
         toggleBtn.innerText = "Live DB";
         toggleBtn.className = "text-xs font-semibold text-text-primary hover:text-wa-green border border-border-subtle hover:border-wa-green/30 px-3 py-1.5 rounded-full transition-all duration-300 bg-white/2 whitespace-nowrap";
       } else {
         indicator.className = "flex items-center gap-1.5 px-2.5 py-1.5 bg-wa-green/10 border border-wa-green/20 text-wa-green rounded-full text-[10px] sm:text-[11px] font-semibold tracking-wide shadow-[0_0_15px_rgba(37,211,102,0.05)]";
-        indicator.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-wa-green animate-ping"></span><span id="demo-indicator-text">Live Database</span>`;
+        indicator.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-wa-green flex-shrink-0 animate-ping"></span><span id="demo-indicator-text" class="hidden sm:inline">Live Database</span>`;
         toggleBtn.innerText = "Demo Mode";
         toggleBtn.className = "text-xs font-semibold text-text-primary hover:text-orange-400 border border-border-subtle hover:border-orange-500/30 px-3 py-1.5 rounded-full transition-all duration-300 bg-white/2 whitespace-nowrap";
       }
@@ -649,7 +695,7 @@
                 <p class="text-sm text-text-secondary leading-relaxed whitespace-pre-wrap">${shortContent}</p>
                 ${hasMore ? `
                   <div class="mt-4 pt-3 border-t border-border-subtle/30 flex justify-end">
-                    <button onclick="alert(\`${note.content.replace(/`/g, '\\`').replace(/\$/g, '\\$')}\`)" class="text-xs font-bold text-wa-green hover:underline flex items-center gap-1 cursor-pointer">
+                    <button onclick="openNoteModal(\`${subject.replace(/`/g, '\\`').replace(/\$/g, '\\$')}\`, \`${note.content.replace(/`/g, '\\`').replace(/\$/g, '\\$')}\`)" class="text-xs font-bold text-wa-green hover:underline flex items-center gap-1 cursor-pointer">
                       Read Full Note ↗
                     </button>
                   </div>` : ''}

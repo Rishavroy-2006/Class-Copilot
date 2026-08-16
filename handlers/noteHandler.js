@@ -8,6 +8,24 @@ const { fastExtractJson, embedText } = require('../llmRouter');
 const MAX_PDF_SIZE_MB = 10;
 const JACCARD_THRESHOLD = 0.85; // notes with >85% word overlap are considered duplicates
 
+async function customPageRender(pageData) {
+  const render_options = {
+    normalizeWhitespace: false,
+    disableCombineTextItems: false
+  };
+  const textContent = await pageData.getTextContent(render_options);
+  let lastY, text = '';
+  for (const item of textContent.items) {
+    if (lastY == item.transform[5] || !lastY) {
+      text += item.str + ' ';
+    } else {
+      text += '\n' + item.str + ' ';
+    }
+    lastY = item.transform[5];
+  }
+  return text;
+}
+
 function tokenizeText(str) {
   return new Set(str.toLowerCase().replace(/[^a-z0-9\s]/g, '').split(/\s+/).filter(Boolean));
 }
@@ -72,7 +90,7 @@ async function handleNote(msg, text, chatId, sock) {
         const buffer = Buffer.concat(chunks);
 
         try {
-          const pdfData = await pdfParse(buffer);
+          const pdfData = await pdfParse(buffer, { pagerender: customPageRender });
           const cleanText = pdfData.text.replace(/\S{50,}/g, '');
           contentToSave = `[Document: ${docMessage.fileName || 'Untitled PDF'}]\n` + (cleanText.trim() || '[Empty PDF]');
         } catch (parseErr) {

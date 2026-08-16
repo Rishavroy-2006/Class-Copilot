@@ -3,6 +3,24 @@ const pdfParse = require('pdf-parse');
 const supabase = require('../supabaseClient');
 const { fastExtractJson, generatePredictionJson } = require('../llmRouter');
 
+async function customPageRender(pageData) {
+  const render_options = {
+    normalizeWhitespace: false,
+    disableCombineTextItems: false
+  };
+  const textContent = await pageData.getTextContent(render_options);
+  let lastY, text = '';
+  for (const item of textContent.items) {
+    if (lastY == item.transform[5] || !lastY) {
+      text += item.str + ' ';
+    } else {
+      text += '\n' + item.str + ' ';
+    }
+    lastY = item.transform[5];
+  }
+  return text;
+}
+
 async function handlePyq(sock, msg, text, chatId) {
   const docMessage = msg.message?.documentMessage || msg.message?.documentWithCaptionMessage?.message?.documentMessage;
 
@@ -39,7 +57,7 @@ Return JSON in format: {"subject": "Subject Name", "year": "2023 or unknown"}`;
       chunks.push(chunk);
     }
     const buffer = Buffer.concat(chunks);
-    const pdfData = await pdfParse(buffer);
+    const pdfData = await pdfParse(buffer, { pagerender: customPageRender });
     const cleanText = pdfData.text.replace(/\S{50,}/g, '');
     rawText = cleanText.trim();
   } catch (err) {

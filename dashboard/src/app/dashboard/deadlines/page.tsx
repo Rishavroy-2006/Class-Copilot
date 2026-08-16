@@ -181,7 +181,7 @@ export default function DeadlinesPage() {
           return (
             <div
               key={deadline.id}
-              className={`glass-panel p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 border transition-all duration-300 ${config.classes} ${config.glow}`}
+              className={`glass-panel p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 border transition-all duration-300 ${config.classes} ${config.glow}`}
             >
               <div className="flex items-start gap-4">
                 <div className={`w-10 h-10 rounded-lg flex items-center justify-center text-lg ${isPassed ? 'bg-white/5' : 'bg-wa-green/10'}`}>

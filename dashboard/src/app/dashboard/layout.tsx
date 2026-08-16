@@ -45,7 +45,7 @@ export default function DashboardLayout({
       {/* Tabs Container */}
       <div className="w-full bg-bg-secondary/40 border-b border-border-subtle py-2">
         <div className="max-w-6xl mx-auto px-4">
-          <nav className="flex space-x-1" aria-label="Tabs">
+          <nav className="flex space-x-1 overflow-x-auto whitespace-nowrap scrollbar-hide pb-1" aria-label="Tabs">
             {tabs.map((tab) => {
               const isActive = pathname === tab.path;
               return (

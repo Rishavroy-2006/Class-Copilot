@@ -21,11 +21,17 @@
   --font-display: 'Space Grotesk', 'Inter', sans-serif;
 }
 
+html {
+  overflow-x: hidden;
+  max-width: 100%;
+}
+
 body {
   background-color: #050A0E;
   color: #F0F6FC;
   font-family: var(--font-primary);
   min-height: 100vh;
+  overflow-x: hidden;
 }
 
 /* Glassmorphism custom components */
@@ -71,4 +77,13 @@ body {
 
 .animate-skeleton {
   animation: skeleton-pulse 1.5s ease-in-out infinite;
+}
+
+/* Hide scrollbar for horizontal scrolling elements */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }

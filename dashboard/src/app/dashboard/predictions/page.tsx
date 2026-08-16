@@ -128,13 +128,13 @@ export default function PredictionsPage() {
               </span>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
               {prediction.predicted_topics && prediction.predicted_topics.map((t, index) => {
                 const isHigh = t.confidence?.toLowerCase() === 'high';
                 return (
                   <div
                     key={index}
-                    className="glass-panel p-5 bg-white/1 flex flex-col justify-between border border-border-subtle hover:border-wa-green/20 transition-all duration-300 rounded-xl relative overflow-hidden"
+                    className="glass-panel p-4 sm:p-5 bg-white/1 flex flex-col justify-between border border-border-subtle hover:border-wa-green/20 transition-all duration-300 rounded-xl relative overflow-hidden"
                   >
                     <div className="space-y-3">
                       <div className="flex items-start justify-between gap-3">
