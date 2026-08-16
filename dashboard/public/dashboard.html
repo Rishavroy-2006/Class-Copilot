@@ -237,30 +237,40 @@
     // Toggle subjects accordion state
     const openSubjects = {};
 
-    function toggleSubject(subject) {
+    window.toggleSubject = function(subject) {
       openSubjects[subject] = !openSubjects[subject];
       renderNotes();
+    };
+
+    // Escape HTML function
+    window.escapeHtml = function(unsafe) {
+      if (!unsafe) return '';
+      return unsafe
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
     }
 
-    // Switch view tabs
-    function switchTab(tabName) {
+    window.switchTab = function(tabName) {
       ['notes', 'deadlines', 'predictions'].forEach(name => {
         const btn = document.getElementById(`tab-${name}`);
         const view = document.getElementById(`view-${name}`);
-        const isActive = name === tabName;
-
-        // ARIA state
-        btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
-
-        if (isActive) {
-          btn.className = "flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 bg-wa-green/10 text-wa-green border border-wa-green/20 shadow-[0_0_20px_rgba(37,211,102,0.06)] whitespace-nowrap";
+        
+        if (name === tabName) {
+          btn.classList.add('bg-wa-green/10', 'text-wa-green', 'border-wa-green/20', 'shadow-[0_0_20px_rgba(37,211,102,0.06)]');
+          btn.classList.remove('text-text-secondary', 'border-transparent');
+          btn.setAttribute('aria-selected', 'true');
           view.classList.remove('hidden');
         } else {
-          btn.className = "flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 text-text-secondary hover:text-text-primary hover:bg-white/5 border border-transparent whitespace-nowrap";
+          btn.classList.remove('bg-wa-green/10', 'text-wa-green', 'border-wa-green/20', 'shadow-[0_0_20px_rgba(37,211,102,0.06)]');
+          btn.classList.add('text-text-secondary', 'border-transparent');
+          btn.setAttribute('aria-selected', 'false');
           view.classList.add('hidden');
         }
       });
-    }
+    };
 
     // Loading Skeletons
     function showSkeleton(containerId, count = 2) {
@@ -311,9 +321,11 @@
     }
 
     // Modal Functions
-    function openNoteModal(subject, content) {
-      document.getElementById('note-modal-subject').innerText = subject + ' Note';
-      document.getElementById('note-modal-content').innerText = content;
+    window.openNoteModal = function(noteId) {
+      const note = notesData.find(n => String(n.id) === String(noteId));
+      if (!note) return;
+      document.getElementById('note-modal-subject').innerText = (note.subject || 'General') + ' Note';
+      document.getElementById('note-modal-content').innerText = note.content;
       
       const modal = document.getElementById('note-modal');
       const panel = document.getElementById('note-modal-panel');
@@ -322,22 +334,26 @@
       // trigger reflow
       void modal.offsetWidth;
       modal.classList.remove('opacity-0');
-      panel.classList.remove('scale-95');
+      modal.classList.add('opacity-100');
+      panel.classList.remove('scale-95', 'opacity-0');
+      panel.classList.add('scale-100', 'opacity-100');
       document.body.style.overflow = 'hidden'; // prevent bg scrolling
-    }
+    };
 
-    function closeNoteModal() {
+    window.closeNoteModal = function() {
       const modal = document.getElementById('note-modal');
       const panel = document.getElementById('note-modal-panel');
       
+      modal.classList.remove('opacity-100');
       modal.classList.add('opacity-0');
-      panel.classList.add('scale-95');
+      panel.classList.remove('scale-100', 'opacity-100');
+      panel.classList.add('scale-95', 'opacity-0');
       
       setTimeout(() => {
         modal.classList.add('hidden');
         document.body.style.overflow = '';
       }, 300);
-    }
+    };
 
     // Error Panels
     function showError(containerId, errMessage) {
@@ -682,8 +698,7 @@
         if (isOpen) {
           notesListHtml = `<div class="p-6 space-y-6 bg-[#0A1118]/10">`;
           subjectNotes.forEach(note => {
-            const shortContent = note.content.length > 500 ? note.content.substring(0, 500) + '...' : note.content;
-            const hasMore = note.content.length > 500;
+            const hasMore = note.content.length > 300;
             const dateFormatted = new Date(note.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
             notesListHtml += `
@@ -692,10 +707,10 @@
                   <span class="text-xs text-text-muted">Added ${dateFormatted}</span>
                   <span class="text-xs font-semibold px-2.5 py-1 rounded bg-wa-green/8 text-wa-green border border-wa-green/10">PDF Note</span>
                 </div>
-                <p class="text-sm text-text-secondary leading-relaxed whitespace-pre-wrap">${shortContent}</p>
+                <p class="text-sm text-text-secondary leading-relaxed whitespace-pre-wrap line-clamp-4 break-words">${escapeHtml(note.content)}</p>
                 ${hasMore ? `
                   <div class="mt-4 pt-3 border-t border-border-subtle/30 flex justify-end">
-                    <button onclick="openNoteModal(\`${subject.replace(/`/g, '\\`').replace(/\$/g, '\\$')}\`, \`${note.content.replace(/`/g, '\\`').replace(/\$/g, '\\$')}\`)" class="text-xs font-bold text-wa-green hover:underline flex items-center gap-1 cursor-pointer">
+                    <button onclick="openNoteModal('${note.id}')" class="text-xs font-bold text-wa-green hover:underline flex items-center gap-1 cursor-pointer">
                       Read Full Note ↗
                     </button>
                   </div>` : ''}
