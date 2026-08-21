@@ -33,22 +33,30 @@ async function checkPromptGuard(text) {
 }
 
 async function callGemini(contents, config = {}) {
-  try {
-    const response = await ai.models.generateContent({
-      model: 'gemini-3.5-flash-lite',
-      contents,
-      config
-    });
-    return response;
-  } catch (err) {
-    console.warn(`[llmRouter] Gemini 3.5 failed (${err.message}). Falling back to Gemini 3.1 Flash Lite...`);
-    const fallbackResponse = await ai.models.generateContent({
-      model: 'gemini-3.1-flash-lite',
-      contents,
-      config
-    });
-    return fallbackResponse;
+  const models = [
+    'gemini-3.7-flash',
+    'gemini-3.6-flash',
+    'gemini-3.5-flash',
+    'gemini-3.5-flash-lite',
+    'gemini-3.1-flash-lite'
+  ];
+
+  let lastError;
+  for (const model of models) {
+    try {
+      const response = await ai.models.generateContent({
+        model,
+        contents,
+        config
+      });
+      return response;
+    } catch (err) {
+      console.warn(`[llmRouter] Gemini model ${model} failed: ${err.message}. Trying next fallback...`);
+      lastError = err;
+    }
   }
+
+  throw new Error(`All Gemini models failed. Last error: ${lastError?.message}`);
 }
 
 /**
@@ -60,7 +68,7 @@ async function fastExtractJson(prompt) {
   if (groq) {
     try {
       const completion = await groq.chat.completions.create({
-        model: 'llama-3.1-8b-instant',
+        model: 'openai/gpt-oss-120b',
         messages: [{ role: 'user', content: prompt }],
         temperature: 0,
         response_format: { type: "json_object" }

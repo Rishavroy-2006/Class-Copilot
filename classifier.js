@@ -14,9 +14,15 @@ const Groq = require('groq-sdk');
 
 const CATEGORIES = ['NOTE', 'DEADLINE', 'QUESTION', 'NOISE', 'PYQ'];
 
+const { GoogleGenAI } = require('@google/genai');
+
 // Only created if a key is present — lets the rule-based layer work standalone
 const groq = process.env.GROQ_API_KEY
   ? new Groq({ apiKey: process.env.GROQ_API_KEY })
+  : null;
+
+const ai = process.env.GEMINI_API_KEY
+  ? new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY })
   : null;
 
 // ---------------------------------------------------------------------------
@@ -121,11 +127,6 @@ function ruleBasedClassify(text, msg) {
 // ---------------------------------------------------------------------------
 
 async function llmClassify(text) {
-  if (!groq) {
-    console.warn('[classifier] No GROQ_API_KEY set — defaulting ambiguous message to NOISE');
-    return 'NOISE';
-  }
-
   const prompt = `Classify this class group chat message into exactly one word: NOTE, DEADLINE, QUESTION, or NOISE.
 
 - NOTE: shares study material, notes, or resources (MUST contain actual educational content, files, or links. Casual discussions are NOT notes).
@@ -139,21 +140,53 @@ Message: "${text}"
 
 Reply with only the single category word, nothing else.`;
 
-  try {
-    const completion = await groq.chat.completions.create({
-      model: 'llama-3.1-8b-instant', // fast + free-tier friendly on Groq
-      messages: [{ role: 'user', content: prompt }],
-      temperature: 0,
-      max_tokens: 5,
-    });
+  if (groq) {
+    try {
+      const completion = await groq.chat.completions.create({
+        model: 'openai/gpt-oss-120b', // fast + free-tier friendly on Groq
+        messages: [{ role: 'user', content: prompt }],
+        temperature: 0,
+        max_tokens: 5,
+      });
 
-    const raw = completion.choices[0]?.message?.content?.trim().toUpperCase();
-    const match = CATEGORIES.find((c) => raw?.includes(c));
-    return match || 'NOISE';
-  } catch (err) {
-    console.error('[classifier] LLM call failed, defaulting to NOISE:', err.message);
-    return 'NOISE';
+      const raw = completion.choices[0]?.message?.content?.trim().toUpperCase();
+      const match = CATEGORIES.find((c) => raw?.includes(c));
+      return match || 'NOISE';
+    } catch (err) {
+      console.warn('[classifier] Groq classification failed, trying Gemini fallback...', err.message);
+    }
   }
+
+  if (ai) {
+    const models = [
+      'gemini-3.5-flash-lite',
+      'gemini-3.1-flash-lite'
+    ];
+    let lastErr;
+    
+    for (const model of models) {
+      try {
+        const response = await ai.models.generateContent({
+          model,
+          contents: prompt,
+          config: {
+            temperature: 0,
+            maxOutputTokens: 5,
+          }
+        });
+        const raw = response.text?.trim().toUpperCase();
+        const match = CATEGORIES.find((c) => raw?.includes(c));
+        return match || 'NOISE';
+      } catch (err) {
+        console.warn(`[classifier] Gemini ${model} failed: ${err.message}. Trying next...`);
+        lastErr = err;
+      }
+    }
+    console.error(`[classifier] All Gemini fallbacks failed. Last error: ${lastErr?.message}`);
+  }
+
+  console.warn('[classifier] All LLMs failed or not configured, defaulting to NOISE');
+  return 'NOISE';
 }
 
 // ---------------------------------------------------------------------------
