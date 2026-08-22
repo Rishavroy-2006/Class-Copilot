@@ -76,6 +76,12 @@ function ruleBasedClassify(text, msg) {
     return 'NOISE';
   }
 
+  // 1.5. Questions (strip mentions first to catch things like "@123 what is...")
+  const cleanText = trimmed.replace(/@\d+\s*/g, '').trim();
+  if (QUESTION_PATTERN.test(cleanText)) {
+    return 'QUESTION';
+  }
+
   // 2. Roll call / Name lists (lots of contiguous names) → NOISE
   const lines = trimmed.split('\n').filter(l => l.trim().length > 0);
   // Match lines that look like "1. John Doe" or just "John Doe" (mostly alphabetical, minimal punctuation)
@@ -117,7 +123,7 @@ async function llmClassify(text) {
 - NOTE: shares study material, notes, or resources (MUST contain actual educational content, files, or links. Casual discussions are NOT notes).
 - DEADLINE: mentions an assignment, exam, or submission with a time reference
 - QUESTION: is genuinely asking something that needs an answer
-- NOISE: casual chat, jokes, greetings, personal achievements, opinions, or anything not explicitly an announcement or study material
+- NOISE: casual chat, jokes, greetings, personal achievements, opinions, or anything not explicitly a NOTE, DEADLINE, or QUESTION
 
 If in doubt between NOISE and NOTE for conversational text, ALWAYS choose NOISE.
 
