@@ -43,7 +43,7 @@ const NOTE_URL_PATTERN = /https?:\/\/(www\.)?(drive\.google|docs\.google|forms\.
 const QUESTION_PATTERN = /(\?(\s*@\d+)*$|^(what|why|who|where|when|how|can|could|will|would|does|do|is|are|whose)\b|^any(one|body)\b|^any(one|body)\s+ha(s|ve)\b|^has\s+anyone\b|^can\s+(someone|anyone)\b|^pls\b|^please\b.*\b(send|share|give)\b|\b(need|send|share|provide)\s+(notes|pdf|link|material|assignment|syllabus)\b|where\s+can\s+i|roll\s+no)/i;
 
 const ANNOUNCEMENT_PATTERN = /(dear\s+(students|all)|please\s+note|kindly|attention|this\s+is\s+for\s+your\s+information|you\s+are\s+requested|you\s+are\s+advised|gentle\s+reminder)/i;
-const IMPORTANT_ANNOUNCEMENT_PATTERN = /\b(urgent|important|attention|notice|action\s+required)\b/i;
+const IMPORTANT_ANNOUNCEMENT_PATTERN = /\b(urgent|attention|notice|action\s+required|important\s+announcement|important\s+notice)\b/i;
 const IMPORTANT_LIST = /\b(contact|collect|meet|today|tomorrow|urgent|report|come)\b/i;
 
 function hasMediaAttachment(msg) {
@@ -69,57 +69,33 @@ function ruleBasedClassify(text, msg) {
     return 'PYQ';
   }
 
-  const isDeadline = DEADLINE_KEYWORDS.test(trimmed);
-  const hasDateOrTime = DATE_PATTERN.test(trimmed) || TIME_PATTERN.test(trimmed);
-  const isImportant = IMPORTANT_ANNOUNCEMENT_PATTERN.test(trimmed);
-
-  // 1. System/greetings/emojis → NOISE
-  if (NOISE_PATTERN.test(trimmed) || EMOJI_ONLY_PATTERN.test(trimmed) || SYSTEM_PATTERN.test(trimmed)) {
+  // 1. System/greetings/emojis/absences → NOISE
+  if (NOISE_PATTERN.test(trimmed) || EMOJI_ONLY_PATTERN.test(trimmed) || SYSTEM_PATTERN.test(trimmed) || ABSENCE_PATTERN.test(trimmed)) {
     return 'NOISE';
   }
 
-  // 2. Attendance excuses → NOISE
-  if (ABSENCE_PATTERN.test(trimmed)) {
-    return 'NOISE';
-  }
-
-  // 3. Roll call lists (lots of all-caps names) → NOISE unless they have deadline words or are important
+  // 2. Roll call lists (lots of all-caps names) → NOISE unless they are important
   const lines = trimmed.split('\n');
   if (lines.length >= 4 && lines.filter(l => /^[A-Z .]+$/.test(l.trim())).length >= 3) {
-    if (!isDeadline && !IMPORTANT_LIST.test(trimmed)) {
+    if (!IMPORTANT_LIST.test(trimmed)) {
       return 'NOISE';
     }
   }
 
-  // 4. Study links (e.g. Google Forms) → check surrounding text for deadline context first
-  if (NOTE_URL_PATTERN.test(trimmed)) {
-    if (isDeadline && hasDateOrTime) {
-      return 'DEADLINE';
+  // 3. Explicit Notes (Study links or Media)
+  // If it's just a file or link with no other context, it's a NOTE. 
+  // If we want the LLM to catch deadlines associated with files, we should probably still let the LLM check it if there's text.
+  // But per your request, we keep the basic NOTE detection.
+  if (hasMediaAttachment(msg) || NOTE_URL_PATTERN.test(trimmed)) {
+    // If it contains deadline keywords, pass to LLM to decide between DEADLINE and NOTE
+    if (DEADLINE_KEYWORDS.test(trimmed)) {
+      return null;
     }
     return 'NOTE';
   }
 
-  // 5. Deadline keywords + date/time → DEADLINE
-  if (isDeadline && hasDateOrTime) {
-    return 'DEADLINE';
-  }
-
-  // 6. Official announcements → DEADLINE or NOTE
-  if (ANNOUNCEMENT_PATTERN.test(trimmed) || isImportant) {
-    return isDeadline || isImportant ? 'DEADLINE' : 'NOTE';
-  }
-
-  // 7. Questions/requests → QUESTION
-  if (QUESTION_PATTERN.test(trimmed)) {
-    return 'QUESTION';
-  }
-
-  // 8. Study material, documents, links → NOTE
-  if (hasMediaAttachment(msg)) {
-    return 'NOTE';
-  }
-
-  return null; // couldn't confidently decide — hand off to the LLM
+  // 4. Everything else (Questions, Deadlines, conversational notes, ambiguous text) → Hand off to LLM
+  return null;
 }
 
 // ---------------------------------------------------------------------------
