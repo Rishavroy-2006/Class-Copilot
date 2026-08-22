@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import { Inter, Space_Grotesk } from 'next/font/google';
 import Link from 'next/link';
 import './globals.css';
+import TabsNavigation from '@/components/TabsNavigation';
+
 const inter = Inter({
   subsets: ['latin'],
   variable: '--font-sans',
@@ -29,26 +31,34 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
       </head>
       <body className="font-sans antialiased bg-bg-primary text-text-primary min-h-screen flex flex-col" suppressHydrationWarning>
-        <nav className="fixed top-0 w-full z-50 bg-bg-primary/80 backdrop-blur-xl border-b border-border-subtle shadow-sm">
-          <div className="flex justify-between items-center h-16 px-6 max-w-[1440px] mx-auto">
+        <header className="sticky top-0 z-50 w-full border-b border-border-subtle bg-[#050A0E]/85 backdrop-blur-md">
+          <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
             <div className="flex items-center gap-8">
-              <span className="font-display text-xl font-bold text-wa-green">Class Copilot</span>
-              <div className="hidden md:flex gap-6">
-                <Link href="/dashboard" className="text-text-secondary hover:text-text-primary font-medium hover:bg-white/5 rounded-lg transition-all py-2 px-3">Dashboard</Link>
-                <Link href="/challenge" className="text-text-secondary hover:text-text-primary font-medium hover:bg-white/5 rounded-lg transition-all py-2 px-3">Socratic Challenge</Link>
-                <Link href="/instructor" className="text-text-secondary hover:text-text-primary font-medium hover:bg-white/5 rounded-lg transition-all py-2 px-3">Instructor Hub</Link>
-              </div>
+              <Link href="/dashboard" className="flex items-center gap-2">
+                <div className="w-8 h-8 flex items-center justify-center rounded-lg bg-gradient-to-br from-wa-green to-wa-green-dark">
+                  <svg width="18" height="18" viewBox="0 0 32 32" fill="none">
+                    <path d="M16 6C10.48 6 6 10.18 6 15.31C6 17.97 7.23 20.37 9.21 22.03L8.1 25.5L11.82 24.3C13.11 24.87 14.52 25.18 16 25.18C21.52 25.18 26 21 26 15.87C26 10.74 21.52 6 16 6Z" fill="white" />
+                  </svg>
+                </div>
+                <span className="font-display font-bold text-lg tracking-tight">
+                  Class<span className="text-wa-green">Copilot</span>
+                </span>
+              </Link>
             </div>
-            <div className="flex items-center gap-4">
-              <button className="text-text-secondary hover:text-wa-green transition-colors p-2 active:scale-95 transition-transform">
-                <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 0" }}>notifications</span>
-              </button>
-              <button className="text-text-secondary hover:text-wa-green transition-colors p-2 active:scale-95 transition-transform">
-                <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 0" }}>settings</span>
-              </button>
+
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-wa-green/10 border border-wa-green/20 text-wa-green rounded-full text-[10px] sm:text-[11px] font-semibold tracking-wide shadow-[0_0_15px_rgba(37,211,102,0.05)]">
+                <span className="w-1.5 h-1.5 rounded-full bg-wa-green flex-shrink-0"></span>
+                <span className="hidden sm:inline">Live Database</span>
+              </div>
+              
+              <Link href="/dashboard" aria-label="Back to dashboard" className="text-xs font-semibold text-text-secondary hover:text-text-primary border border-border-subtle hover:border-white/10 px-3 py-1.5 rounded-full transition-all duration-300 whitespace-nowrap">
+                ← Back
+              </Link>
             </div>
           </div>
-        </nav>
+        </header>
+        <TabsNavigation />
         {children}
       </body>
     </html>
