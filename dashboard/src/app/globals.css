@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./wa-theme.css";
 
 @theme {
   --color-bg-primary: #050A0E;
