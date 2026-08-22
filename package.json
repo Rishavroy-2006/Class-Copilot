@@ -16,7 +16,7 @@
     "ai",
     "bot",
     "rag",
-    "llama",
+    "gpt-oss",
     "gemini",
     "supabase",
     "pgvector"

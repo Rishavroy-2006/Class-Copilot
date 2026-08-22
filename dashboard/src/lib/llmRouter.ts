@@ -49,7 +49,7 @@ async function callGemini(contents: string, config: any = {}) {
 async function callGroq(prompt: string, expectJson: boolean = false) {
   if (!groq) throw new Error('Groq API key not configured');
   const completion = await groq.chat.completions.create({
-    model: 'llama-3.1-8b-instant',
+    model: 'openai/gpt-oss-120b',
     messages: [{ role: 'user', content: prompt }],
     temperature: 0.1,
     max_tokens: 1000,

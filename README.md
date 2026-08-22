@@ -5,7 +5,7 @@
 ![Node.js](https://img.shields.io/badge/Node.js-Backend-green?style=flat-square)
 ![Next.js](https://img.shields.io/badge/Next.js-Frontend-black?style=flat-square)
 ![Baileys](https://img.shields.io/badge/WhatsApp-Baileys-brightgreen?style=flat-square)
-![Groq](https://img.shields.io/badge/Groq-Llama_3-orange?style=flat-square)
+![Groq](https://img.shields.io/badge/Groq-GPT_OSS_120B-orange?style=flat-square)
 ![Gemini](https://img.shields.io/badge/Gemini-Flash_Lite-blue?style=flat-square)
 ![Supabase](https://img.shields.io/badge/Supabase-pgvector-emerald?style=flat-square)
 ![Render](https://img.shields.io/badge/Render-Deployed-purple?style=flat-square)
@@ -156,7 +156,7 @@ npm run dev
 
 ### 1. Smart Message Processing & Routing
 - **Group-Only Guard**: Operates strictly in group chats (`@g.us`). Ignores DMs to preserve privacy.
-- **Hybrid Classifier**: Uses regex rules to classify messages (`NOTE`, `DEADLINE`, `QUESTION`, `PYQ`, `NOISE`). Falls back to Groq (`llama-3.1-8b-instant`) for ambiguous text.
+- **Hybrid Classifier**: Uses regex rules to classify messages (`NOTE`, `DEADLINE`, `QUESTION`, `PYQ`, `NOISE`). Falls back to Groq (`openai/gpt-oss-120b`) for ambiguous text.
 - **Summary Command**: Reply to any long message with "summarize" to generate concise bullet points.
 
 ### 2. Note Management & Embeddings
@@ -185,6 +185,11 @@ npm run dev
 ### 7. Cloud-Native Architecture (Render Ready)
 - **Database-Backed Auth**: WhatsApp session credentials (`baileys_auth_state`) are securely saved to Supabase instead of the local filesystem. This ensures that the bot stays logged in even when cloud hosts (like Render or Heroku) restart the server.
 - **Health Checks & Graceful Shutdown**: Exposes a `/health` HTTP endpoint for uptime monitors and cleanly closes the WhatsApp socket on `SIGTERM`.
+
+### 8. Socratic Challenge Engine
+- **Active Recall Validation**: Instead of just reading notes, students can test their true understanding by selecting a concept from their notes and defending their explanation against an AI challenger.
+- **Closed-Loop Mastery**: The AI evaluates the defense, assigns a mastery score (0-100), and dynamically adjusts the strictness and scaffolding of the *next* challenge based on the student's prior performance.
+- **Instructor Hub**: Provides teachers with a dedicated analytics dashboard to monitor class mastery scores and identify concepts that require additional attention.
 
 ## Live Demo & Deployment
 
@@ -237,6 +242,7 @@ What to expect:
 - Next.js Web Dashboard for out-of-chat viewing
 - Native Landing Page integration with Cyber-Glass UI Redesign
 - Render Cloud Deployment Compatibility
+- Socratic Challenge Engine & Instructor Hub
 
 **Next**
 - **Voice Note Transcription:** Whisper API integration so the bot can summarize voice rambles.
@@ -251,7 +257,7 @@ What to expect:
 - **Language:** JavaScript (Node.js 18+), TypeScript (React/Next.js)
 - **Bridge:** `@whiskeysockets/baileys`
 - **Database:** Supabase (PostgreSQL + pgvector)
-- **Primary LLM:** Groq (`openai/gpt-oss-120b`, `llama-3.1-8b`, `prompt-guard`)
+- **Primary LLM:** Groq (`openai/gpt-oss-120b`, `prompt-guard`)
 - **Fallback LLM:** Google Gemini (`gemini-3.5-flash-lite`)
 
 This project is open-sourced under the MIT License — see [LICENSE](./LICENSE).

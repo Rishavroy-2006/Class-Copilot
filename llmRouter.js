@@ -61,7 +61,7 @@ async function callGemini(contents, config = {}) {
 
 /**
  * Fast JSON extraction (subject, deadline dates)
- * Primary: Groq llama-3.1-8b-instant
+ * Primary: Groq openai/gpt-oss-120b
  * Fallback: Gemini Flash Lite
  */
 async function fastExtractJson(prompt) {
