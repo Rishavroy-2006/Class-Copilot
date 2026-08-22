@@ -98,7 +98,7 @@ function ruleBasedClassify(text, msg) {
   if (hasMediaAttachment(msg) || NOTE_URL_PATTERN.test(trimmed)) {
     // If the media has a significant caption, or if it's a YouTube link, 
     // pass it to the LLM. The AI will read the text and decide if it's a meme/joke or an actual note.
-    if (trimmed.length > 20 || /youtube\.com|youtu\.be/i.test(trimmed)) {
+    if (trimmed.length > 150 || /youtube\.com|youtu\.be/i.test(trimmed)) {
       return null;
     }
     

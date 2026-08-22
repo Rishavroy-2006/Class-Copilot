@@ -12,7 +12,7 @@ function getEnv(key: string) {
       const match = content.match(new RegExp(`^${key}=(.*)$`, 'm'));
       if (match) return match[1].trim();
     }
-  } catch (e) {}
+  } catch (e) { }
   return undefined;
 }
 
