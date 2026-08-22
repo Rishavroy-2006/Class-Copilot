@@ -108,6 +108,11 @@ async function startBridge() {
 
       // Catch errors per-message so one bad apple doesn't spoil the batch
       try {
+        const hasDoc = !!(msg.message?.documentMessage || msg.message?.documentWithCaptionMessage);
+        if (hasDoc) {
+          await sock.sendMessage(chatId, { react: { text: "⏳", key: msg.key } });
+        }
+
         const { category, method } = await classifyMessage(text, msg);
 
         console.log('---------------------------------');
@@ -119,8 +124,10 @@ async function startBridge() {
 
         // 👉 Next step: route based on category
         if (category === 'NOTE') {
+          await sock.sendMessage(chatId, { react: { text: "📝", key: msg.key } });
           await handleNote(msg, text, chatId, sock);
         } else if (category === 'DEADLINE') {
+          await sock.sendMessage(chatId, { react: { text: "⏰", key: msg.key } });
           await handleDeadline(sock, msg, text, chatId);
         } else if (category === 'PYQ') {
           const botNumber = sock.user.id.split(':')[0].split('@')[0];

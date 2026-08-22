@@ -38,6 +38,7 @@ const EMOJI_ONLY_PATTERN = /^[\p{Extended_Pictographic}\s]+$/u;
 const ABSENCE_PATTERN = /\b(out\s+of\s+station|out\s+of\s+kolkata|can't\s+attend|cannot\s+attend|won't\s+attend|family\s+urgency|family\s+emergency|sorry\s+ma'?m|not\s+able\s+to\s+attend)\b/i;
 const SYSTEM_PATTERN = /(message\s+was\s+deleted|media\s+omitted|pinned\s+a\s+message|added\s+the\s+group|removed\s+the\s+group|community\s+admin|changed\s+the\s+description)/i;
 
+// Highly strict educational domains (YouTube is removed because it's too ambiguous)
 const NOTE_URL_PATTERN = /https?:\/\/(www\.)?(drive\.google|docs\.google|forms\.gle|nit\.ac\.in|devfolio\.co|github\.com|skillindiadigital|1drv\.ms|onedrive\.live\.com|mega\.nz)/i;
 
 const QUESTION_PATTERN = /(\?(\s*@\d+)*$|^(what|why|who|where|when|how|can|could|will|would|does|do|is|are|whose)\b|^any(one|body)\b|^any(one|body)\s+ha(s|ve)\b|^has\s+anyone\b|^can\s+(someone|anyone)\b|^pls\b|^please\b.*\b(send|share|give)\b|\b(need|send|share|provide)\s+(notes|pdf|link|material|assignment|syllabus)\b|where\s+can\s+i|roll\s+no)/i;
@@ -51,7 +52,8 @@ function hasMediaAttachment(msg) {
   return Boolean(
     m.documentMessage ||
     m.documentWithCaptionMessage ||
-    m.imageMessage
+    m.imageMessage ||
+    m.videoMessage
   );
 }
 
@@ -74,19 +76,26 @@ function ruleBasedClassify(text, msg) {
     return 'NOISE';
   }
 
-  // 2. Roll call lists (lots of all-caps names) → NOISE unless they are important
-  const lines = trimmed.split('\n');
-  if (lines.length >= 4 && lines.filter(l => /^[A-Z .]+$/.test(l.trim())).length >= 3) {
+  // 2. Roll call / Name lists (lots of contiguous names) → NOISE
+  const lines = trimmed.split('\n').filter(l => l.trim().length > 0);
+  // Match lines that look like "1. John Doe" or just "John Doe" (mostly alphabetical, minimal punctuation)
+  const nameLines = lines.filter(l => /^(?:\d+[\.\)]\s*)?[A-Za-z\s\.]{3,}$/.test(l.trim()));
+  
+  // Threshold increased to 8 to avoid falsely flagging a short list of study topics (e.g., a 5-item syllabus)
+  if (lines.length >= 8 && nameLines.length >= 8) {
     if (!IMPORTANT_LIST.test(trimmed)) {
       return 'NOISE';
     }
   }
 
   // 3. Explicit Notes (Study links or Media)
-  // If it's just a file or link with no other context, it's a NOTE. 
-  // If we want the LLM to catch deadlines associated with files, we should probably still let the LLM check it if there's text.
-  // But per your request, we keep the basic NOTE detection.
   if (hasMediaAttachment(msg) || NOTE_URL_PATTERN.test(trimmed)) {
+    // If the media has a significant caption, or if it's a YouTube link, 
+    // pass it to the LLM. The AI will read the text and decide if it's a meme/joke or an actual note.
+    if (trimmed.length > 20 || /youtube\.com|youtu\.be/i.test(trimmed)) {
+      return null;
+    }
+    
     // If it contains deadline keywords, pass to LLM to decide between DEADLINE and NOTE
     if (DEADLINE_KEYWORDS.test(trimmed)) {
       return null;
