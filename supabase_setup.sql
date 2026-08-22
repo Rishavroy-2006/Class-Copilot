@@ -62,6 +62,7 @@ create table if not exists public.predictions (
 create index if not exists idx_predictions_chat_sub on public.predictions(chat_id, subject);
 
 -- 5. Create RPC match_notes function for pgvector similarity search
+drop function if exists public.match_notes(vector, text, double precision, integer);
 create or replace function public.match_notes (
   query_embedding vector(768),
   match_chat_id text,
@@ -111,3 +112,27 @@ create policy "Allow service_role full control on notes" on public.notes for all
 create policy "Allow service_role full control on deadlines" on public.deadlines for all using (true);
 create policy "Allow service_role full control on past_papers" on public.past_papers for all using (true);
 create policy "Allow service_role full control on predictions" on public.predictions for all using (true);
+
+-- 6. Create Socratic Challenges Table
+CREATE TABLE if not exists public.challenges (
+  id SERIAL PRIMARY KEY,
+  student_id TEXT NOT NULL,
+  concept TEXT NOT NULL,
+  source_note_id INT,
+  student_answer TEXT NOT NULL,
+  ai_challenge TEXT NOT NULL,
+  student_defense TEXT,
+  evaluation TEXT,
+  understood BOOLEAN,
+  mastery_score INT,
+  strictness TEXT DEFAULT 'medium',
+  prior_score INT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- RLS for challenges
+alter table public.challenges enable row level security;
+create policy "Allow public read access to challenges" on public.challenges for select using (true);
+create policy "Allow public insert access to challenges" on public.challenges for insert with check (true);
+create policy "Allow public update access to challenges" on public.challenges for update using (true);
+create policy "Allow service_role full control on challenges" on public.challenges for all using (true);
