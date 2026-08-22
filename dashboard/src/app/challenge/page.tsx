@@ -16,6 +16,113 @@ export default function ChallengePage() {
   const [studentId, setStudentId] = useState("student_123");
 
   const chatEndRef = useRef<HTMLDivElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  // 3D Background Effect
+  useEffect(() => {
+    let animationId: number;
+    let cleanupThree: (() => void) | null = null;
+
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    function initThreeJS() {
+      const THREE = (window as any).THREE;
+      if (!THREE || !canvas) return;
+
+      const scene = new THREE.Scene();
+      scene.fog = new THREE.FogExp2(0x050A0E, 0.02); // bg-primary color
+
+      const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+      camera.position.z = 30;
+
+      const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
+      scene.add(ambientLight);
+
+      const waGreenLight = new THREE.PointLight(0x25D366, 2, 100);
+      waGreenLight.position.set(10, 10, 10);
+      scene.add(waGreenLight);
+
+      const waDarkGreenLight = new THREE.PointLight(0x128C7E, 1.5, 100);
+      waDarkGreenLight.position.set(-10, -10, 10);
+      scene.add(waDarkGreenLight);
+
+      // Create "Socratic Brain/Network" Particles
+      const particlesGeo = new THREE.BufferGeometry();
+      const particlesCount = 1000;
+      const posArray = new Float32Array(particlesCount * 3);
+      
+      for(let i = 0; i < particlesCount * 3; i++) {
+        posArray[i] = (Math.random() - 0.5) * 100;
+      }
+      particlesGeo.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+      
+      const particlesMat = new THREE.PointsMaterial({
+        size: 0.15,
+        color: 0x25D366,
+        transparent: true,
+        opacity: 0.8,
+        blending: THREE.AdditiveBlending
+      });
+
+      const particleMesh = new THREE.Points(particlesGeo, particlesMat);
+      scene.add(particleMesh);
+
+      let mouseX = 0;
+      let mouseY = 0;
+      const handleMouseMove = (event: MouseEvent) => {
+        mouseX = (event.clientX - window.innerWidth / 2) * 0.005;
+        mouseY = (event.clientY - window.innerHeight / 2) * 0.005;
+      };
+      window.addEventListener('mousemove', handleMouseMove);
+
+      const handleResize = () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+      };
+      window.addEventListener('resize', handleResize);
+
+      const animate = () => {
+        animationId = requestAnimationFrame(animate);
+        particleMesh.rotation.y += 0.001;
+        particleMesh.rotation.x += 0.0005;
+        camera.position.x += (mouseX * 10 - camera.position.x) * 0.05;
+        camera.position.y += (-mouseY * 10 - camera.position.y) * 0.05;
+        camera.lookAt(scene.position);
+        renderer.render(scene, camera);
+      };
+      animate();
+
+      cleanupThree = () => {
+        window.removeEventListener('mousemove', handleMouseMove);
+        window.removeEventListener('resize', handleResize);
+        cancelAnimationFrame(animationId);
+        renderer.dispose();
+      };
+    }
+
+    let script: HTMLScriptElement | null = null;
+    if (!(window as any).THREE) {
+      script = document.createElement('script');
+      script.src = "https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js";
+      script.onload = initThreeJS;
+      document.head.appendChild(script);
+    } else {
+      initThreeJS();
+    }
+
+    return () => {
+      if (script && script.parentNode) {
+        script.parentNode.removeChild(script);
+      }
+      if (cleanupThree) cleanupThree();
+    };
+  }, []);
 
   useEffect(() => {
     async function fetchConcepts() {
@@ -78,7 +185,10 @@ export default function ChallengePage() {
   };
 
   return (
-    <main className="flex-grow pt-24 pb-16 px-4 md:px-8 w-full max-w-[1200px] mx-auto flex flex-col lg:flex-row gap-12 animate-fade-in">
+    <>
+      {/* 3D Background Canvas */}
+      <canvas ref={canvasRef} className="fixed inset-0 w-full h-full -z-10 pointer-events-none opacity-40"></canvas>
+      <main className="flex-grow pt-24 pb-16 px-4 md:px-8 w-full max-w-[1200px] mx-auto flex flex-col lg:flex-row gap-12 animate-fade-in relative z-10">
       
       {/* LEFT COLUMN: The original form UI exactly as requested */}
       <div className="flex-1 flex flex-col gap-8 max-w-[800px]">
@@ -395,5 +505,6 @@ export default function ChallengePage() {
       </div>
 
     </main>
+    </>
   );
 }

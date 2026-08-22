@@ -165,7 +165,15 @@ export default function InstructorPage() {
                   <tr 
                     key={i} 
                     onClick={() => handleRowClick(s.concept)}
-                    className={`border-b border-border-subtle transition-colors cursor-pointer ${s.avg < 70 ? 'bg-red-400/5 hover:bg-red-400/10' : 'hover:bg-white/5'}`}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        handleRowClick(s.concept);
+                      }
+                    }}
+                    role="button"
+                    tabIndex={0}
+                    className={`border-b border-border-subtle transition-colors cursor-pointer outline-none focus:bg-white/10 ${s.avg < 70 ? 'bg-red-400/5 hover:bg-red-400/10' : 'hover:bg-white/5'}`}
                   >
                     <td className="py-4 px-4">
                       <div className="font-semibold text-text-primary flex items-center gap-2 group-hover:text-wa-green transition-colors">
@@ -215,6 +223,7 @@ export default function InstructorPage() {
               </div>
               <button 
                 onClick={closeModal}
+                aria-label="Close modal"
                 className="w-10 h-10 flex items-center justify-center rounded-full bg-white/5 hover:bg-white/10 text-text-secondary hover:text-white transition-colors"
               >
                 <span className="material-symbols-outlined text-[24px]">close</span>
@@ -277,7 +286,7 @@ export default function InstructorPage() {
                             <span className="w-5 h-5 rounded-full bg-wa-green/20 text-wa-green flex items-center justify-center border border-wa-green/30 text-[10px]">2</span>
                             AI Challenge
                           </span>
-                          <div className="bg-[#0B141A] rounded-xl p-4 text-[#E9EDEF] font-sans text-sm border-l-4 border-wa-green leading-relaxed whitespace-pre-wrap">
+                          <div className="bg-bg-secondary rounded-xl p-4 text-text-primary font-sans text-sm border-l-4 border-wa-green leading-relaxed whitespace-pre-wrap">
                             {interaction.ai_challenge}
                           </div>
                         </div>
@@ -297,7 +306,7 @@ export default function InstructorPage() {
                             <span className="w-5 h-5 rounded-full bg-wa-green/20 text-wa-green flex items-center justify-center border border-wa-green/30 text-[10px]">4</span>
                             Final Evaluation
                           </span>
-                          <div className="bg-[#0B141A] rounded-xl p-4 text-[#E9EDEF] font-sans text-sm border-l-4 border-wa-green leading-relaxed whitespace-pre-wrap">
+                          <div className="bg-bg-secondary rounded-xl p-4 text-text-primary font-sans text-sm border-l-4 border-wa-green leading-relaxed whitespace-pre-wrap">
                             {interaction.evaluation}
                           </div>
                         </div>
