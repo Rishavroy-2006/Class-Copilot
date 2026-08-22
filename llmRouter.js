@@ -43,10 +43,11 @@ async function callGemini(contents, config = {}) {
   let lastError;
   for (const model of models) {
     try {
-      const response = await ai.models.generateContent({
-        model,
-        contents,
-        config
+      const response = await new Promise((resolve, reject) => {
+        const timer = setTimeout(() => reject(new Error('Request timed out after 15 seconds')), 15000);
+        ai.models.generateContent({ model, contents, config })
+          .then(res => { clearTimeout(timer); resolve(res); })
+          .catch(err => { clearTimeout(timer); reject(err); });
       });
       return response;
     } catch (err) {
